@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Teoria das Filas</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab { padding: 10px; cursor: pointer; background: #ddd; }
+    .tab.active { background: #aaa; color: white; }
+    .content { display: none; }
+    .content.active { display: block; }
+    input { margin: 5px 0 12px; display: block; }
+    button { margin-top: 10px; }
+    .label-with-help {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .result { margin-top: 16px; max-width: 680px; }
+    .result-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 28px;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .result-name { font-weight: bold; }
+    .result-value { font-family: monospace; }
+    .probability-list { margin-top: 20px; }
+    .probability-list h3 { margin-bottom: 8px; }
+    .tooltip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ddd;
+      color: #333;
+      cursor: help;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .tooltip::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 8px);
+      width: 260px;
+      padding: 8px;
+      border-radius: 4px;
+      background: #333;
+      color: #fff;
+      font-size: 13px;
+      font-weight: normal;
+      line-height: 1.35;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: opacity 0.15s, transform 0.15s;
+      z-index: 10;
+    }
+    .tooltip:hover::after,
+    .tooltip:focus::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<h1>Calculadora de Filas</h1>
+
+<div class="tabs">
+  <div class="tab active" onclick="openTab('mm1')">M/M/1</div>
+  <div class="tab" onclick="openTab('mms')">M/M/s</div>
+  <div class="tab" onclick="openTab('mm1k')">M/M/1/K</div>
+  <div class="tab" onclick="openTab('mmsk')">M/M/s/K</div>
+  <div class="tab" onclick="openTab('mm1n')">M/M/1/N</div>
+  <div class="tab" onclick="openTab('mmsn')">M/M/s/N</div>
+</div>
+
+<!-- M/M/1 -->
+<div id="mm1" class="content active">
+  <h2>M/M/1</h2>
+  
+  <label>λ (taxa de chegada):</label>
+  <input type="number" id="mm1_lambda" step="0.01">
+
+  <label>μ (taxa de serviço):</label>
+  <input type="number" id="mm1_mu" step="0.01">
+
+  <label class="label-with-help">
+    t (tempo para calcular P(W &gt; t) e P(Wq &gt; t)):
+    <span class="tooltip" tabindex="0" data-tooltip="Use este campo quando o exercício perguntar a probabilidade de o tempo ser maior que algum valor, como P(W > 1) ou P(Wq > 1). Use a mesma unidade de λ e μ.">?</span>
+  </label>
+  <input type="number" id="mm1_tempo" step="0.01" value="1">
+
+  <label class="label-with-help">
+    W alvo (tempo médio desejado no sistema):
+    <span class="tooltip" tabindex="0" data-tooltip="Use este campo quando o exercício pedir a taxa de chegada λ necessária para atingir um tempo médio desejado no sistema. Exemplo: descobrir λ para que W seja 1,25 horas.">?</span>
+  </label>
+  <input type="number" id="mm1_w_alvo" step="0.01" value="1.25">
+
+  <button onclick="calcularMM1()">Calcular</button>
+
+  <div class="result" id="mm1_result"></div>
+</div>
+
+<!-- M/M/s -->
+<div id="mms" class="content">
+  <h2>M/M/s</h2>
+  
+  <label>λ (taxa de chegada):</label>
+  <input type="number" id="mms_lambda" step="0.01">
+
+  <label>μ (taxa de serviço):</label>
+  <input type="number" id="mms_mu" step="0.01">
+
+  <label>s (nº de servidores):</label>
+  <input type="number" id="mms_s">
+
+  <button onclick="calcularMMS()">Calcular</button>
+
+  <div class="result" id="mms_result"></div>
+</div>
+
+<!-- M/M/1/K -->
+<div id="mm1k" class="content">
+  <h2>M/M/1/K</h2>
+
+  <label>λ (taxa de chegada):</label>
+  <input type="number" id="mm1k_lambda" step="0.01">
+
+  <label>μ (taxa de serviço):</label>
+  <input type="number" id="mm1k_mu" step="0.01">
+
+  <label class="label-with-help">
+    K (capacidade total do sistema):
+    <span class="tooltip" tabindex="0" data-tooltip="Capacidade total do sistema, incluindo o cliente em atendimento e os clientes aguardando. Se o sistema estiver cheio, uma nova chegada é bloqueada.">?</span>
+  </label>
+  <input type="number" id="mm1k_k" step="1">
+
+  <button onclick="calcularMM1K()">Calcular</button>
+
+  <div class="result" id="mm1k_result"></div>
+</div>
+
+<!-- M/M/s/K -->
+<div id="mmsk" class="content">
+  <h2>M/M/s/K</h2>
+
+  <label>λ (taxa de chegada):</label>
+  <input type="number" id="mmsk_lambda" step="0.01">
+
+  <label>μ (taxa de serviço):</label>
+  <input type="number" id="mmsk_mu" step="0.01">
+
+  <label class="label-with-help">
+    s (nº de servidores):
+    <span class="tooltip" tabindex="0" data-tooltip="Quantidade de servidores em paralelo. No modelo M/M/s/K, pode ser 1 ou mais.">?</span>
+  </label>
+  <input type="number" id="mmsk_s" step="1">
+
+  <label class="label-with-help">
+    K (capacidade total do sistema):
+    <span class="tooltip" tabindex="0" data-tooltip="Capacidade total do sistema, incluindo clientes em atendimento e clientes aguardando. K deve ser maior ou igual a s.">?</span>
+  </label>
+  <input type="number" id="mmsk_k" step="1">
+
+  <button onclick="calcularMMSK()">Calcular</button>
+
+  <div class="result" id="mmsk_result"></div>
+</div>
+
+<!-- M/M/1/N -->
+<div id="mm1n" class="content">
+  <h2>M/M/1/N</h2>
+
+  <label class="label-with-help">
+    λ (taxa de chegada/quebra por cliente externo):
+    <span class="tooltip" tabindex="0" data-tooltip="Taxa individual de chegada ou quebra para cada cliente que está fora do sistema. Em população finita, a chegada total depende de quantos clientes ainda estão fora.">?</span>
+  </label>
+  <input type="number" id="mm1n_lambda" step="0.01">
+
+  <label>μ (taxa de serviço/reparo):</label>
+  <input type="number" id="mm1n_mu" step="0.01">
+
+  <label class="label-with-help">
+    N (população total possível):
+    <span class="tooltip" tabindex="0" data-tooltip="Total fixo de clientes possíveis, incluindo quem está no sistema e quem está fora dele. Exemplo: quantidade total de máquinas ou robôs.">?</span>
+  </label>
+  <input type="number" id="mm1n_n" step="1">
+
+  <button onclick="calcularMM1N()">Calcular</button>
+
+  <div class="result" id="mm1n_result"></div>
+</div>
+
+<!-- M/M/s/N -->
+<div id="mmsn" class="content">
+  <h2>M/M/s/N</h2>
+
+  <label class="label-with-help">
+    λ (taxa de chegada/quebra por cliente externo):
+    <span class="tooltip" tabindex="0" data-tooltip="Taxa individual de chegada ou quebra para cada cliente que está fora do sistema. A chegada total diminui quando há mais clientes no sistema.">?</span>
+  </label>
+  <input type="number" id="mmsn_lambda" step="0.01">
+
+  <label class="label-with-help">
+    μ (taxa de serviço/reparo por servidor):
+    <span class="tooltip" tabindex="0" data-tooltip="Taxa de atendimento de cada servidor individualmente. Com vários servidores, a taxa total de saída depende de quantos estão ocupados.">?</span>
+  </label>
+  <input type="number" id="mmsn_mu" step="0.01">
+
+  <label class="label-with-help">
+    s (nº de servidores/técnicos):
+    <span class="tooltip" tabindex="0" data-tooltip="Quantidade de servidores em paralelo. Neste modelo, s pode ser 1 ou mais e deve ser menor ou igual a N.">?</span>
+  </label>
+  <input type="number" id="mmsn_s" step="1">
+
+  <label class="label-with-help">
+    N (população total possível):
+    <span class="tooltip" tabindex="0" data-tooltip="Total fixo de clientes possíveis, incluindo quem está no sistema e quem está fora dele. Exemplo: quantidade total de máquinas ou robôs.">?</span>
+  </label>
+  <input type="number" id="mmsn_n" step="1">
+
+  <button onclick="calcularMMSN()">Calcular</button>
+
+  <div class="result" id="mmsn_result"></div>
+</div>
+
+<script src="calculos.js"></script>
+<script>
+function openTab(tabId) {
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function formatar(valor) {
+  return valor.toFixed(2);
+}
+
+function formatarProbabilidade(valor) {
+  return `${valor.toFixed(4)} (${(valor * 100).toFixed(2)}%)`;
+}
+
+function criarLinhaResultado(nome, valor, tooltip) {
+  return `
+    <div class="result-row">
+      <span class="result-name">${nome}</span>
+      <span class="result-value">${valor}</span>
+      <span class="tooltip" tabindex="0" data-tooltip="${tooltip}">?</span>
+    </div>
+  `;
+}
+
+function criarLinhasProbabilidades(probabilidades) {
+  const linhas = probabilidades.map((probabilidade, indice) =>
+    criarLinhaResultado(
+      `P${indice}`,
+      formatarProbabilidade(probabilidade),
+      `Probabilidade de haver exatamente ${indice} cliente(s) no sistema.`
+    )
+  ).join("");
+
+  return `
+    <div class="probability-list">
+      <h3>Distribuição de probabilidades</h3>
+      ${linhas}
+    </div>
+  `;
+}
+
+// M/M/1
+function calcularMM1() {
+  const lambda = parseFloat(document.getElementById('mm1_lambda').value);
+  const mu = parseFloat(document.getElementById('mm1_mu').value);
+  const tempo = parseFloat(document.getElementById('mm1_tempo').value);
+  const wAlvo = parseFloat(document.getElementById('mm1_w_alvo').value);
+  const resultado = document.getElementById('mm1_result');
+
+  let valores;
+  try {
+    valores = CalculosFilas.calcularMM1Valores(lambda, mu, tempo, wAlvo);
+  } catch (erro) {
+    resultado.innerText = erro.message;
+    return;
+  }
+
+  const lambdaParaWAlvoTexto = valores.lambdaParaWAlvo !== null
+    ? formatar(valores.lambdaParaWAlvo)
+    : "Não aplicável";
+
+  resultado.innerHTML = `
+    ${criarLinhaResultado("ρ", formatar(valores.rho), "Taxa de utilização do sistema. Indica a fração do tempo em que o barbeiro fica ocupado.")}
+    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de não haver clientes no sistema. Também representa a chance de um cliente chegar e não precisar esperar.")}
+    ${criarLinhaResultado("P(ocupado)", formatarProbabilidade(valores.POcupado), "Probabilidade de o servidor estar ocupado. Em M/M/1, é igual a ρ.")}
+    ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo quem está em atendimento e quem está na fila.")}
+    ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila antes do atendimento começar.")}
+    ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio que um cliente permanece no sistema, incluindo espera na fila e atendimento.")}
+    ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio que um cliente espera na fila antes de começar o atendimento.")}
+    ${criarLinhaResultado(`P(W > ${formatar(tempo)})`, formatarProbabilidade(valores.probWMaiorQueT), "Probabilidade de o tempo total no sistema ser maior que o tempo t informado.")}
+    ${criarLinhaResultado(`P(Wq > ${formatar(tempo)})`, formatarProbabilidade(valores.probWqMaiorQueT), "Probabilidade de o tempo de espera na fila ser maior que o tempo t informado.")}
+    ${criarLinhaResultado("λ para W alvo", lambdaParaWAlvoTexto, "Taxa de chegada que faria o tempo médio no sistema atingir o W alvo informado, mantendo a mesma taxa de serviço μ.")}
+  `;
+}
+
+function calcularMMS() {
+  const lambda = parseFloat(document.getElementById('mms_lambda').value);
+  const mu = parseFloat(document.getElementById('mms_mu').value);
+  const s = Number(document.getElementById('mms_s').value);
+  const resultado = document.getElementById('mms_result');
+
+  let valores;
+  try {
+    valores = CalculosFilas.calcularMMSValores(lambda, mu, s);
+  } catch (erro) {
+    resultado.innerText = erro.message;
+    return;
+  }
+
+  resultado.innerText = `
+ρ = ${valores.rho.toFixed(2)}
+P0 = ${valores.P0.toFixed(2)}
+Lq = ${valores.Lq.toFixed(2)}
+Wq = ${valores.Wq.toFixed(2)}
+W = ${valores.W.toFixed(2)}
+L = ${valores.L.toFixed(2)}
+  `;
+}
+
+function calcularMM1K() {
+  const lambda = parseFloat(document.getElementById('mm1k_lambda').value);
+  const mu = parseFloat(document.getElementById('mm1k_mu').value);
+  const K = Number(document.getElementById('mm1k_k').value);
+  const resultado = document.getElementById('mm1k_result');
+
+  let valores;
+  try {
+    valores = CalculosFilas.calcularMM1KValores(lambda, mu, K);
+  } catch (erro) {
+    resultado.innerText = erro.message;
+    return;
+  }
+
+  resultado.innerHTML = `
+    ${criarLinhaResultado("ρ", formatar(valores.rho), "Razão de tráfego do sistema, calculada por λ / μ.")}
+    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
+    ${criarLinhaResultado("PK / bloqueio", formatarProbabilidade(valores.PK), "Probabilidade de o sistema estar cheio. Uma chegada nesse estado é bloqueada.")}
+    ${criarLinhaResultado("λ efetiva", formatar(valores.lambdaEfetiva), "Taxa real de entrada no sistema depois de descontar as chegadas bloqueadas.")}
+    ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo atendimento e fila.")}
+    ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila.")}
+    ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio que um cliente aceito permanece no sistema.")}
+    ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio que um cliente aceito aguarda na fila.")}
+    ${criarLinhasProbabilidades(valores.probabilidades)}
+  `;
+}
+
+function calcularMMSK() {
+  const lambda = parseFloat(document.getElementById('mmsk_lambda').value);
+  const mu = parseFloat(document.getElementById('mmsk_mu').value);
+  const s = Number(document.getElementById('mmsk_s').value);
+  const K = Number(document.getElementById('mmsk_k').value);
+  const resultado = document.getElementById('mmsk_result');
+
+  let valores;
+  try {
+    valores = CalculosFilas.calcularMMSKValores(lambda, mu, s, K);
+  } catch (erro) {
+    resultado.innerText = erro.message;
+    return;
+  }
+
+  resultado.innerHTML = `
+    ${criarLinhaResultado("ρ", formatar(valores.rho), "Razão de tráfego do sistema, calculada por λ / (sμ).")}
+    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
+    ${criarLinhaResultado("PK / bloqueio", formatarProbabilidade(valores.PK), "Probabilidade de o sistema estar cheio. Uma chegada nesse estado é bloqueada.")}
+    ${criarLinhaResultado("λ efetiva", formatar(valores.lambdaEfetiva), "Taxa real de entrada no sistema após descontar as chegadas bloqueadas.")}
+    ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo atendimento e fila.")}
+    ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila.")}
+    ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio que um cliente aceito permanece no sistema.")}
+    ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio que um cliente aceito aguarda na fila.")}
+    ${criarLinhasProbabilidades(valores.probabilidades)}
+  `;
+}
+
+function calcularMM1N() {
+  const lambda = parseFloat(document.getElementById('mm1n_lambda').value);
+  const mu = parseFloat(document.getElementById('mm1n_mu').value);
+  const N = Number(document.getElementById('mm1n_n').value);
+  const resultado = document.getElementById('mm1n_result');
+
+  let valores;
+  try {
+    valores = CalculosFilas.calcularMM1PopulacaoFinitaValores(lambda, mu, N);
+  } catch (erro) {
+    resultado.innerText = erro.message;
+    return;
+  }
+
+  resultado.innerHTML = `
+    ${criarLinhaResultado("P0 / ocioso", formatarProbabilidade(valores.probOcioso), "Probabilidade de não haver clientes no sistema. Também representa a probabilidade de o técnico ou servidor estar ocioso.")}
+    ${criarLinhaResultado("P(ocupado)", formatarProbabilidade(valores.probOcupado), "Probabilidade de existir pelo menos um cliente no sistema, deixando o servidor ocupado.")}
+    ${criarLinhaResultado("λ efetiva", formatar(valores.lambdaEfetiva), "Taxa real de entrada no sistema. Em população finita, é λ multiplicado pelo número médio de clientes fora do sistema.")}
+    ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo atendimento e fila.")}
+    ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila.")}
+    ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio que um cliente permanece no sistema, incluindo espera e atendimento.")}
+    ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio que um cliente aguarda na fila antes de começar o atendimento.")}
+    ${criarLinhaResultado("N - L / operacionais", formatar(valores.clientesFora), "Número médio de clientes fora do sistema. Em problemas de máquinas, representa a quantidade média em operação.")}
+    ${criarLinhasProbabilidades(valores.probabilidades)}
+  `;
+}
+
+function calcularMMSN() {
+  const lambda = parseFloat(document.getElementById('mmsn_lambda').value);
+  const mu = parseFloat(document.getElementById('mmsn_mu').value);
+  const s = Number(document.getElementById('mmsn_s').value);
+  const N = Number(document.getElementById('mmsn_n').value);
+  const resultado = document.getElementById('mmsn_result');
+
+  let valores;
+  try {
+    valores = CalculosFilas.calcularMMSPopulacaoFinitaValores(lambda, mu, s, N);
+  } catch (erro) {
+    resultado.innerText = erro.message;
+    return;
+  }
+
+  resultado.innerHTML = `
+    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de não haver clientes no sistema. Nesse estado, todos os servidores estão ociosos.")}
+    ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo atendimento e fila.")}
+    ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila.")}
+    ${criarLinhaResultado("λ efetiva", formatar(valores.lambdaEfetiva), "Taxa real de entrada no sistema. Em população finita, é λ multiplicado pelo número médio de clientes fora do sistema.")}
+    ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio que um cliente permanece no sistema, incluindo espera e atendimento.")}
+    ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio que um cliente aguarda na fila antes de começar o atendimento.")}
+    ${criarLinhaResultado("N - L / operacionais", formatar(valores.clientesFora), "Número médio de clientes fora do sistema. Em problemas de máquinas, representa a quantidade média em operação.")}
+    ${criarLinhaResultado("ocupação média por servidor", formatarProbabilidade(valores.ocupacaoMediaServidor), "Fração média de tempo ocupada por servidor. É a ocupação individual média dos técnicos ou servidores.")}
+    ${criarLinhaResultado("ociosidade média por servidor", formatarProbabilidade(valores.ociosidadeMediaServidor), "Fração média de tempo ociosa por servidor individual. Não é a mesma coisa que a probabilidade de existir algum servidor ocioso.")}
+    ${criarLinhaResultado("P(algum servidor ocioso)", formatarProbabilidade(valores.probAlgumServidorOcioso), "Probabilidade de haver menos clientes no sistema do que servidores, isto é, pelo menos um servidor está ocioso. Esta é a interpretação que bate com 0,9279 no slide.")}
+    ${criarLinhasProbabilidades(valores.probabilidades)}
+  `;
+}
+</script>
+
+</body>
+</html>
