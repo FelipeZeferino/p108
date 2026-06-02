@@ -2,12 +2,14 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const {
+  calcularMG1Valores,
   calcularMM1Valores,
   calcularMM1KValores,
   calcularMM1PopulacaoFinitaValores,
   calcularMMSPopulacaoFinitaValores,
   calcularMMSKValores,
   calcularMMSValores,
+  calcularPrioridadesSemInterrupcao,
   combinacao,
   fatorial
 } = require("../calculos.js");
@@ -59,6 +61,72 @@ test("calcula M/M/s para dois servidores", () => {
   pertoDe(resultado.Wq, 0.04090909090909091);
   pertoDe(resultado.W, 0.2909090909090909);
   pertoDe(resultado.L, 0.8727272727272727);
+});
+
+test("calcula M/G/1 equivalente a M/M/1 no exemplo do lava-rapido", () => {
+  const resultado = calcularMG1Valores(4, 6, 1 / 36);
+
+  pertoDe(resultado.rho, 0.6666666666666666);
+  pertoDe(resultado.P0, 0.33333333333333337);
+  pertoDe(resultado.Lq, 1.3333, 1e-4);
+  pertoDe(resultado.L, 2, 1e-10);
+  pertoDe(resultado.Wq, 0.3333, 1e-4);
+  pertoDe(resultado.W, 0.5, 1e-10);
+});
+
+test("calcula M/G/1 com atendimento constante no exemplo do lava-rapido", () => {
+  const resultadoExponencial = calcularMG1Valores(4, 6, 1 / 36);
+  const resultadoConstante = calcularMG1Valores(4, 6, 0);
+
+  pertoDe(resultadoConstante.Lq, 0.6667, 1e-4);
+  pertoDe(resultadoConstante.L, 1.3333, 1e-4);
+  pertoDe(resultadoConstante.Wq, 0.1667, 1e-4);
+  pertoDe(resultadoConstante.W, 0.3333, 1e-4);
+  pertoDe(resultadoConstante.Lq / resultadoExponencial.Lq, 0.5, 1e-12);
+});
+
+test("bloqueia entradas invalidas em M/G/1", () => {
+  assert.throws(() => calcularMG1Valores(6, 6, 0), /Sistema instável/);
+  assert.throws(() => calcularMG1Valores(4, 6, -0.01), /σ²/);
+});
+
+test("calcula prioridades sem interrupcao no hospital com um servidor", () => {
+  const resultado = calcularPrioridadesSemInterrupcao([0.2, 0.6, 1.2], 3, 1);
+
+  pertoDe(resultado.rho, 0.6666666666666666);
+  pertoDe(resultado.lambdaTotal, 2);
+  pertoDe(resultado.classes[0].W, 0.5714, 1e-3);
+  pertoDe(resultado.classes[0].Wq, 0.2381, 1e-3);
+  pertoDe(resultado.classes[0].L, 0.1143, 1e-3);
+  pertoDe(resultado.classes[0].Lq, 0.0476, 1e-3);
+  pertoDe(resultado.classes[1].W, 0.6580, 1e-3);
+  pertoDe(resultado.classes[1].Wq, 0.3247, 1e-3);
+  pertoDe(resultado.classes[1].L, 0.3948, 1e-3);
+  pertoDe(resultado.classes[1].Lq, 0.1948, 1e-3);
+  pertoDe(resultado.classes[2].W, 1.2424, 1e-3);
+  pertoDe(resultado.classes[2].Wq, 0.9091, 1e-3);
+  pertoDe(resultado.classes[2].L, 1.4909, 1e-3);
+  pertoDe(resultado.classes[2].Lq, 1.0909, 1e-3);
+});
+
+test("calcula prioridades sem interrupcao no hospital com dois servidores", () => {
+  const resultado = calcularPrioridadesSemInterrupcao([0.2, 0.6, 1.2], 3, 2);
+
+  pertoDe(resultado.classes[0].W, 0.3621, 1e-3);
+  pertoDe(resultado.classes[2].Lq, 0.0577, 1e-3);
+});
+
+test("calcula prioridades sem interrupcao no exemplo da delegacia", () => {
+  const resultado = calcularPrioridadesSemInterrupcao([10, 20], 7.5, 5);
+
+  pertoDe(resultado.classes[0].Wq, 0.0201, 1e-3);
+  pertoDe(resultado.classes[1].Wq, 0.1007, 1e-3);
+});
+
+test("bloqueia entradas invalidas em prioridades sem interrupcao", () => {
+  assert.throws(() => calcularPrioridadesSemInterrupcao([1], 3, 1), /pelo menos 2/);
+  assert.throws(() => calcularPrioridadesSemInterrupcao([1, 2], 3, 1.5), /s/);
+  assert.throws(() => calcularPrioridadesSemInterrupcao([2, 2], 3, 1), /Sistema instável/);
 });
 
 test("calcula o exemplo 1 do slide em M/M/1/K", () => {

@@ -5,7 +5,7 @@
   <title>Teoria das Filas</title>
   <style>
     body { font-family: Arial; margin: 20px; }
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
     .tab { padding: 10px; cursor: pointer; background: #ddd; }
     .tab.active { background: #aaa; color: white; }
     .content { display: none; }
@@ -31,6 +31,8 @@
     .result-value { font-family: monospace; }
     .probability-list { margin-top: 20px; }
     .probability-list h3 { margin-bottom: 8px; }
+    .priority-class-result { margin-top: 20px; }
+    .priority-class-result h3 { margin-bottom: 8px; }
     .tooltip {
       position: relative;
       display: inline-flex;
@@ -78,6 +80,8 @@
 <div class="tabs">
   <div class="tab active" onclick="openTab('mm1')">M/M/1</div>
   <div class="tab" onclick="openTab('mms')">M/M/s</div>
+  <div class="tab" onclick="openTab('mg1')">M/G/1</div>
+  <div class="tab" onclick="openTab('prioridades')">Prioridades</div>
   <div class="tab" onclick="openTab('mm1k')">M/M/1/K</div>
   <div class="tab" onclick="openTab('mmsk')">M/M/s/K</div>
   <div class="tab" onclick="openTab('mm1n')">M/M/1/N</div>
@@ -127,6 +131,56 @@
   <button onclick="calcularMMS()">Calcular</button>
 
   <div class="result" id="mms_result"></div>
+</div>
+
+<!-- M/G/1 -->
+<div id="mg1" class="content">
+  <h2>M/G/1</h2>
+
+  <label>λ (taxa de chegada):</label>
+  <input type="number" id="mg1_lambda" step="0.01">
+
+  <label class="label-with-help">
+    μ (taxa de atendimento):
+    <span class="tooltip" tabindex="0" data-tooltip="Taxa média de atendimentos por unidade de tempo. A média do atendimento é 1/μ.">?</span>
+  </label>
+  <input type="number" id="mg1_mu" step="0.01">
+
+  <label class="label-with-help">
+    σ² (variância do tempo de atendimento):
+    <span class="tooltip" tabindex="0" data-tooltip="Variância do tempo de atendimento. Use 0 para atendimento constante.">?</span>
+  </label>
+  <input type="number" id="mg1_sigma2" step="0.01">
+
+  <button onclick="calcularMG1()">Calcular</button>
+
+  <div class="result" id="mg1_result"></div>
+</div>
+
+<!-- Prioridades -->
+<div id="prioridades" class="content">
+  <h2>Prioridades (sem interrupção)</h2>
+
+  <label class="label-with-help">
+    k (nº de classes):
+    <span class="tooltip" tabindex="0" data-tooltip="Quantidade de classes de prioridade. Classe 1 tem a maior prioridade.">?</span>
+  </label>
+  <input type="number" id="prioridades_k" min="2" step="1" value="2" oninput="atualizarCamposPrioridades()">
+
+  <div id="prioridades_lambdas"></div>
+
+  <label>μ (taxa de atendimento):</label>
+  <input type="number" id="prioridades_mu" step="0.01">
+
+  <label class="label-with-help">
+    s (nº de servidores):
+    <span class="tooltip" tabindex="0" data-tooltip="Quantidade de servidores em paralelo atendendo todas as classes.">?</span>
+  </label>
+  <input type="number" id="prioridades_s" step="1">
+
+  <button onclick="calcularPrioridades()">Calcular</button>
+
+  <div class="result" id="prioridades_result"></div>
 </div>
 
 <!-- M/M/1/K -->
@@ -337,6 +391,83 @@ L = ${valores.L.toFixed(2)}
   `;
 }
 
+function calcularMG1() {
+  const lambda = parseFloat(document.getElementById('mg1_lambda').value);
+  const mu = parseFloat(document.getElementById('mg1_mu').value);
+  const sigma2 = parseFloat(document.getElementById('mg1_sigma2').value);
+  const resultado = document.getElementById('mg1_result');
+
+  let valores;
+  try {
+    valores = CalculosFilas.calcularMG1Valores(lambda, mu, sigma2);
+  } catch (erro) {
+    resultado.innerText = erro.message;
+    return;
+  }
+
+  resultado.innerHTML = `
+    ${criarLinhaResultado("ρ", formatar(valores.rho), "Utilização do servidor. Indica a fração média de tempo ocupado.")}
+    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
+    ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando atendimento.")}
+    ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo fila e atendimento.")}
+    ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio de espera na fila antes do atendimento.")}
+    ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio no sistema, incluindo espera e atendimento.")}
+  `;
+}
+
+function atualizarCamposPrioridades() {
+  const k = Number(document.getElementById('prioridades_k').value);
+  const container = document.getElementById('prioridades_lambdas');
+  const valoresAtuais = Array.from(container.querySelectorAll('input')).map(input => input.value);
+
+  if (!Number.isInteger(k) || k < 2) {
+    return;
+  }
+
+  container.innerHTML = Array.from({ length: k }, (_, indice) => `
+    <label>λ${indice + 1} (taxa da classe ${indice + 1}):</label>
+    <input type="number" id="prioridades_lambda_${indice + 1}" step="0.01" value="${valoresAtuais[indice] || ""}">
+  `).join("");
+}
+
+function calcularPrioridades() {
+  const k = Number(document.getElementById('prioridades_k').value);
+  const mu = parseFloat(document.getElementById('prioridades_mu').value);
+  const s = Number(document.getElementById('prioridades_s').value);
+  const resultado = document.getElementById('prioridades_result');
+
+  try {
+    if (!Number.isInteger(k) || k < 2) {
+      throw new Error("k deve ser um número inteiro maior ou igual a 2.");
+    }
+
+    const lambdas = [];
+    for (let indice = 1; indice <= k; indice++) {
+      lambdas.push(parseFloat(document.getElementById(`prioridades_lambda_${indice}`).value));
+    }
+
+    const valores = CalculosFilas.calcularPrioridadesSemInterrupcao(lambdas, mu, s);
+    const classesHtml = valores.classes.map(classe => `
+      <div class="priority-class-result">
+        <h3>Classe ${classe.classe}</h3>
+        ${criarLinhaResultado(`W${classe.classe}`, formatar(classe.W), `Tempo médio no sistema para a classe ${classe.classe}.`)}
+        ${criarLinhaResultado(`Wq${classe.classe}`, formatar(classe.Wq), `Tempo médio de espera na fila para a classe ${classe.classe}.`)}
+        ${criarLinhaResultado(`L${classe.classe}`, formatar(classe.L), `Número médio de clientes da classe ${classe.classe} no sistema.`)}
+        ${criarLinhaResultado(`Lq${classe.classe}`, formatar(classe.Lq), `Número médio de clientes da classe ${classe.classe} aguardando na fila.`)}
+      </div>
+    `).join("");
+
+    resultado.innerHTML = `
+      ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
+      ${criarLinhaResultado("ρ", formatar(valores.rho), "Utilização global do sistema considerando todas as classes.")}
+      ${criarLinhaResultado("λ total", formatar(valores.lambdaTotal), "Soma das taxas de chegada de todas as classes.")}
+      ${classesHtml}
+    `;
+  } catch (erro) {
+    resultado.innerText = erro.message;
+  }
+}
+
 function calcularMM1K() {
   const lambda = parseFloat(document.getElementById('mm1k_lambda').value);
   const mu = parseFloat(document.getElementById('mm1k_mu').value);
@@ -448,6 +579,8 @@ function calcularMMSN() {
     ${criarLinhasProbabilidades(valores.probabilidades)}
   `;
 }
+
+atualizarCamposPrioridades();
 </script>
 
 </body>

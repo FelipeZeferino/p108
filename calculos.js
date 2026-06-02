@@ -88,6 +88,92 @@
     };
   }
 
+  function calcularMG1Valores(lambda, mu, sigma2) {
+    validarNumero("λ", lambda, false);
+    validarNumero("μ", mu, false);
+    validarNumero("σ²", sigma2, true);
+
+    const rho = lambda / mu;
+
+    if (rho >= 1) {
+      throw new Error("Sistema instável (ρ >= 1)");
+    }
+
+    const P0 = 1 - rho;
+    const Lq = ((lambda * lambda * sigma2) + (rho * rho)) / (2 * (1 - rho));
+    const L = rho + Lq;
+    const Wq = Lq / lambda;
+    const W = Wq + (1 / mu);
+
+    return {
+      rho,
+      P0,
+      Lq,
+      L,
+      Wq,
+      W
+    };
+  }
+
+  function calcularPrioridadesSemInterrupcao(lambdas, mu, s) {
+    if (!Array.isArray(lambdas) || lambdas.length < 2) {
+      throw new Error("lambdas deve ser um array com pelo menos 2 taxas de chegada.");
+    }
+
+    lambdas.forEach((lambda, indice) => {
+      validarNumero(`λ${indice + 1}`, lambda, false);
+    });
+    validarNumero("μ", mu, false);
+
+    if (!Number.isInteger(s) || s < 1) {
+      throw new Error("s deve ser um número inteiro maior ou igual a 1.");
+    }
+
+    const lambdaTotal = lambdas.reduce((soma, lambda) => soma + lambda, 0);
+    const r = lambdaTotal / mu;
+    const rho = lambdaTotal / (s * mu);
+
+    if (rho >= 1) {
+      throw new Error("Sistema instável (ρ >= 1)");
+    }
+
+    let somaMMs = 0;
+    for (let n = 0; n < s; n++) {
+      somaMMs += Math.pow(r, n) / fatorial(n);
+    }
+
+    const P0 = 1 / (somaMMs + (Math.pow(r, s) / (fatorial(s) * (1 - rho))));
+    const fatorEspera = (
+      (fatorial(s) * (s * mu - lambdaTotal) * somaMMs) / Math.pow(r, s)
+    ) + (s * mu);
+    let lambdaAcumulado = 0;
+
+    const classes = lambdas.map((lambdaClasse, indice) => {
+      const sigmaAnterior = lambdaAcumulado / (s * mu);
+      lambdaAcumulado += lambdaClasse;
+      const sigmaAtual = lambdaAcumulado / (s * mu);
+      const W = (1 / (fatorEspera * (1 - sigmaAnterior) * (1 - sigmaAtual))) + (1 / mu);
+      const Wq = W - (1 / mu);
+      const L = lambdaClasse * W;
+      const Lq = L - (lambdaClasse / mu);
+
+      return {
+        classe: indice + 1,
+        W,
+        Wq,
+        L,
+        Lq
+      };
+    });
+
+    return {
+      P0,
+      rho,
+      lambdaTotal,
+      classes
+    };
+  }
+
   function calcularMM1KValores(lambda, mu, K) {
     validarNumero("λ", lambda, false);
     validarNumero("μ", mu, false);
@@ -301,12 +387,14 @@
   }
 
   const api = {
+    calcularMG1Valores,
     calcularMM1Valores,
     calcularMM1KValores,
     calcularMM1PopulacaoFinitaValores,
     calcularMMSPopulacaoFinitaValores,
     calcularMMSKValores,
     calcularMMSValores,
+    calcularPrioridadesSemInterrupcao,
     combinacao,
     fatorial
   };
