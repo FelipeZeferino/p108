@@ -12,56 +12,78 @@
 
 <div class="tabs">
   <div class="tab active" onclick="openTab('mm1')">M/M/1</div>
-  <div class="tab" onclick="openTab('mms')">M/M/s</div>
+  <div class="tab" onclick="openTab('mms')">M/M/s &gt; 1</div>
+  <div class="tab" onclick="openTab('mm1k')">M/M/1/K</div>
+  <div class="tab" onclick="openTab('mmsk')">M/M/s &gt; 1/K</div>
+  <div class="tab" onclick="openTab('mm1n')">M/M/1/N</div>
+  <div class="tab" onclick="openTab('mmsn')">M/M/s &gt; 1/N</div>
   <div class="tab" onclick="openTab('mg1')">M/G/1</div>
   <div class="tab" onclick="openTab('prioridades')">Prioridades</div>
-  <div class="tab" onclick="openTab('mm1k')">M/M/1/K</div>
-  <div class="tab" onclick="openTab('mmsk')">M/M/s/K</div>
-  <div class="tab" onclick="openTab('mm1n')">M/M/1/N</div>
-  <div class="tab" onclick="openTab('mmsn')">M/M/s/N</div>
 </div>
 
 <!-- M/M/1 -->
 <div id="mm1" class="content active">
   <h2>M/M/1</h2>
-  
-  <label>λ (taxa de chegada):</label>
-  <input type="number" id="mm1_lambda" step="0.01">
 
-  <label>μ (taxa de serviço):</label>
-  <input type="number" id="mm1_mu" step="0.01">
+  <div class="form-grid">
+    <div class="field">
+      <label>λ (taxa de chegada):</label>
+      <input type="number" id="mm1_lambda" step="0.01">
+    </div>
 
-  <label class="label-with-help">
-    t (tempo para calcular P(W &gt; t) e P(Wq &gt; t)):
-    <span class="tooltip" tabindex="0" data-tooltip="Use este campo quando o exercício perguntar a probabilidade de o tempo ser maior que algum valor, como P(W > 1) ou P(Wq > 1). Use a mesma unidade de λ e μ.">?</span>
-  </label>
-  <input type="number" id="mm1_tempo" step="0.01" value="1">
+    <div class="field">
+      <label>μ (taxa de serviço):</label>
+      <input type="number" id="mm1_mu" step="0.01">
+    </div>
 
-  <label class="label-with-help">
-    W alvo (tempo médio desejado no sistema):
-    <span class="tooltip" tabindex="0" data-tooltip="Use este campo quando o exercício pedir a taxa de chegada λ necessária para atingir um tempo médio desejado no sistema. Exemplo: descobrir λ para que W seja 1,25 horas.">?</span>
-  </label>
-  <input type="number" id="mm1_w_alvo" step="0.01" value="1.25">
+    <div class="field">
+      <label class="label-with-help">
+        t (tempo para calcular P(W &gt; t) e P(Wq &gt; t)):
+        <span class="tooltip" tabindex="0" data-tooltip="Use este campo quando o exercício perguntar a probabilidade de o tempo ser maior que algum valor, como P(W > 1) ou P(Wq > 1). Use a mesma unidade de λ e μ.">?</span>
+      </label>
+      <input type="number" id="mm1_tempo" step="0.01" value="1">
+    </div>
 
-  <button onclick="calcularMM1()">Calcular</button>
+    <div class="field">
+      <label class="label-with-help">
+        W alvo (tempo médio desejado no sistema):
+        <span class="tooltip" tabindex="0" data-tooltip="Use este campo quando o exercício pedir a taxa de chegada λ necessária para atingir um tempo médio desejado no sistema. Exemplo: descobrir λ para que W seja 1,25 horas.">?</span>
+      </label>
+      <input type="number" id="mm1_w_alvo" step="0.01" value="1.25">
+    </div>
+  </div>
+
+  <div class="actions">
+    <button onclick="calcularMM1()">Calcular</button>
+  </div>
 
   <div class="result" id="mm1_result"></div>
 </div>
 
 <!-- M/M/s -->
 <div id="mms" class="content">
-  <h2>M/M/s</h2>
-  
-  <label>λ (taxa de chegada):</label>
-  <input type="number" id="mms_lambda" step="0.01">
+  <h2>M/M/s &gt; 1</h2>
 
-  <label>μ (taxa de serviço):</label>
-  <input type="number" id="mms_mu" step="0.01">
+  <div class="form-grid">
+    <div class="field">
+      <label>λ (taxa de chegada):</label>
+      <input type="number" id="mms_lambda" step="0.01">
+    </div>
 
-  <label>s (nº de servidores):</label>
-  <input type="number" id="mms_s">
+    <div class="field">
+      <label>μ (taxa de serviço):</label>
+      <input type="number" id="mms_mu" step="0.01">
+    </div>
 
-  <button onclick="calcularMMS()">Calcular</button>
+    <div class="field">
+      <label>s (nº de servidores, maior que 1):</label>
+      <input type="number" id="mms_s" min="2" step="1">
+    </div>
+  </div>
+
+  <div class="actions">
+    <button onclick="calcularMMS()">Calcular</button>
+  </div>
 
   <div class="result" id="mms_result"></div>
 </div>
@@ -70,96 +92,153 @@
 <div id="mg1" class="content">
   <h2>M/G/1</h2>
 
-  <label>λ (taxa de chegada):</label>
-  <input type="number" id="mg1_lambda" step="0.01">
+  <div class="form-grid">
+    <div class="field">
+      <label>λ (taxa de chegada):</label>
+      <input type="number" id="mg1_lambda" step="0.01">
+    </div>
 
-  <label class="label-with-help">
-    μ (taxa de atendimento):
-    <span class="tooltip" tabindex="0" data-tooltip="Taxa média de atendimentos por unidade de tempo. A média do atendimento é 1/μ.">?</span>
-  </label>
-  <input type="number" id="mg1_mu" step="0.01">
+    <div class="field">
+      <label class="label-with-help">
+        μ (taxa de atendimento):
+        <span class="tooltip" tabindex="0" data-tooltip="Taxa média de atendimentos por unidade de tempo. A média do atendimento é 1/μ.">?</span>
+      </label>
+      <input type="number" id="mg1_mu" step="0.01">
+    </div>
 
-  <label class="label-with-help">
-    σ² (variância do tempo de atendimento):
-    <span class="tooltip" tabindex="0" data-tooltip="Variância do tempo de atendimento. Use 0 para atendimento constante.">?</span>
-  </label>
-  <input type="number" id="mg1_sigma2" step="0.01">
+    <div class="field">
+      <label class="label-with-help">
+        σ² (variância do tempo de atendimento):
+        <span class="tooltip" tabindex="0" data-tooltip="Variância do tempo de atendimento. Use 0 para atendimento constante.">?</span>
+      </label>
+      <input type="number" id="mg1_sigma2" step="0.01">
+    </div>
+  </div>
 
-  <button onclick="calcularMG1()">Calcular</button>
+  <div class="actions">
+    <button onclick="calcularMG1()">Calcular</button>
+  </div>
 
   <div class="result" id="mg1_result"></div>
 </div>
 
 <!-- Prioridades -->
 <div id="prioridades" class="content">
-  <h2>Prioridades (sem interrupção)</h2>
+  <h2>Prioridades</h2>
 
-  <label class="label-with-help">
-    k (nº de classes):
-    <span class="tooltip" tabindex="0" data-tooltip="Quantidade de classes de prioridade. Classe 1 tem a maior prioridade.">?</span>
-  </label>
-  <input type="number" id="prioridades_k" min="2" step="1" value="2" oninput="atualizarCamposPrioridades()">
+  <div class="form-grid">
+    <div class="field">
+      <label class="label-with-help">
+        Regime de prioridade:
+        <span class="tooltip" tabindex="0" data-tooltip="Sem interrupção termina o atendimento atual. Com interrupção pausa classes menores quando chega uma classe maior.">?</span>
+      </label>
+      <select id="prioridades_regime" onchange="atualizarInterfacePrioridades()">
+        <option value="sem">Sem interrupção</option>
+        <option value="com">Com interrupção</option>
+      </select>
+    </div>
 
-  <div id="prioridades_lambdas"></div>
+    <div class="field">
+      <label class="label-with-help">
+        k (nº de classes):
+        <span class="tooltip" tabindex="0" data-tooltip="Quantidade de classes de prioridade. Classe 1 tem a maior prioridade.">?</span>
+      </label>
+      <input type="number" id="prioridades_k" min="2" step="1" value="2" oninput="atualizarCamposPrioridades()">
+    </div>
 
-  <label>μ (taxa de atendimento):</label>
-  <input type="number" id="prioridades_mu" step="0.01">
+    <div id="prioridades_lambdas" class="dynamic-fields"></div>
 
-  <label class="label-with-help">
-    s (nº de servidores):
-    <span class="tooltip" tabindex="0" data-tooltip="Quantidade de servidores em paralelo atendendo todas as classes.">?</span>
-  </label>
-  <input type="number" id="prioridades_s" step="1">
+    <div class="field">
+      <label>μ (taxa de atendimento):</label>
+      <input type="number" id="prioridades_mu" step="0.01">
+    </div>
 
-  <button onclick="calcularPrioridades()">Calcular</button>
+    <div id="prioridades_servidores_campo" class="field">
+      <label class="label-with-help">
+        s (nº de servidores):
+        <span class="tooltip" tabindex="0" data-tooltip="Quantidade de servidores em paralelo atendendo todas as classes.">?</span>
+      </label>
+      <input type="number" id="prioridades_s" step="1">
+    </div>
+  </div>
+
+  <div class="actions">
+    <button onclick="calcularPrioridades()">Calcular</button>
+  </div>
 
   <div class="result" id="prioridades_result"></div>
+</div>
+
+<div class="content-alert-slot">
+  <p id="prioridades_k_aviso" class="field-warning" hidden>Use um número inteiro maior ou igual a 2. O modelo de prioridades precisa de pelo menos duas classes.</p>
 </div>
 
 <!-- M/M/1/K -->
 <div id="mm1k" class="content">
   <h2>M/M/1/K</h2>
 
-  <label>λ (taxa de chegada):</label>
-  <input type="number" id="mm1k_lambda" step="0.01">
+  <div class="form-grid">
+    <div class="field">
+      <label>λ (taxa de chegada):</label>
+      <input type="number" id="mm1k_lambda" step="0.01">
+    </div>
 
-  <label>μ (taxa de serviço):</label>
-  <input type="number" id="mm1k_mu" step="0.01">
+    <div class="field">
+      <label>μ (taxa de serviço):</label>
+      <input type="number" id="mm1k_mu" step="0.01">
+    </div>
 
-  <label class="label-with-help">
-    K (capacidade total do sistema):
-    <span class="tooltip" tabindex="0" data-tooltip="Capacidade total do sistema, incluindo o cliente em atendimento e os clientes aguardando. Se o sistema estiver cheio, uma nova chegada é bloqueada.">?</span>
-  </label>
-  <input type="number" id="mm1k_k" step="1">
+    <div class="field">
+      <label class="label-with-help">
+        K (capacidade total do sistema):
+        <span class="tooltip" tabindex="0" data-tooltip="Capacidade total do sistema, incluindo o cliente em atendimento e os clientes aguardando. Se o sistema estiver cheio, uma nova chegada é bloqueada.">?</span>
+      </label>
+      <input type="number" id="mm1k_k" step="1">
+    </div>
+  </div>
 
-  <button onclick="calcularMM1K()">Calcular</button>
+  <div class="actions">
+    <button onclick="calcularMM1K()">Calcular</button>
+  </div>
 
   <div class="result" id="mm1k_result"></div>
 </div>
 
 <!-- M/M/s/K -->
 <div id="mmsk" class="content">
-  <h2>M/M/s/K</h2>
+  <h2>M/M/s &gt; 1/K</h2>
 
-  <label>λ (taxa de chegada):</label>
-  <input type="number" id="mmsk_lambda" step="0.01">
+  <div class="form-grid">
+    <div class="field">
+      <label>λ (taxa de chegada):</label>
+      <input type="number" id="mmsk_lambda" step="0.01">
+    </div>
 
-  <label>μ (taxa de serviço):</label>
-  <input type="number" id="mmsk_mu" step="0.01">
+    <div class="field">
+      <label>μ (taxa de serviço):</label>
+      <input type="number" id="mmsk_mu" step="0.01">
+    </div>
 
-  <label class="label-with-help">
-    s (nº de servidores):
-    <span class="tooltip" tabindex="0" data-tooltip="Quantidade de servidores em paralelo. No modelo M/M/s/K, pode ser 1 ou mais.">?</span>
-  </label>
-  <input type="number" id="mmsk_s" step="1">
+    <div class="field">
+      <label class="label-with-help">
+        s (nº de servidores, maior que 1):
+        <span class="tooltip" tabindex="0" data-tooltip="Use 2 ou mais servidores nesta aba. Se houver apenas 1 servidor, use o modelo M/M/1/K.">?</span>
+      </label>
+      <input type="number" id="mmsk_s" min="2" step="1">
+    </div>
 
-  <label class="label-with-help">
-    K (capacidade total do sistema):
-    <span class="tooltip" tabindex="0" data-tooltip="Capacidade total do sistema, incluindo clientes em atendimento e clientes aguardando. K deve ser maior ou igual a s.">?</span>
-  </label>
-  <input type="number" id="mmsk_k" step="1">
+    <div class="field">
+      <label class="label-with-help">
+        K (capacidade total do sistema):
+        <span class="tooltip" tabindex="0" data-tooltip="Capacidade total do sistema, incluindo clientes em atendimento e clientes aguardando. K deve ser maior ou igual a s.">?</span>
+      </label>
+      <input type="number" id="mmsk_k" step="1">
+    </div>
+  </div>
 
-  <button onclick="calcularMMSK()">Calcular</button>
+  <div class="actions">
+    <button onclick="calcularMMSK()">Calcular</button>
+  </div>
 
   <div class="result" id="mmsk_result"></div>
 </div>
@@ -168,55 +247,77 @@
 <div id="mm1n" class="content">
   <h2>M/M/1/N</h2>
 
-  <label class="label-with-help">
-    λ (taxa de chegada/quebra por cliente externo):
-    <span class="tooltip" tabindex="0" data-tooltip="Taxa individual de chegada ou quebra para cada cliente que está fora do sistema. Em população finita, a chegada total depende de quantos clientes ainda estão fora.">?</span>
-  </label>
-  <input type="number" id="mm1n_lambda" step="0.01">
+  <div class="form-grid">
+    <div class="field">
+      <label class="label-with-help">
+        λ (taxa de chegada/quebra por cliente externo):
+        <span class="tooltip" tabindex="0" data-tooltip="Taxa individual de chegada ou quebra para cada cliente que está fora do sistema. Em população finita, a chegada total depende de quantos clientes ainda estão fora.">?</span>
+      </label>
+      <input type="number" id="mm1n_lambda" step="0.01">
+    </div>
 
-  <label>μ (taxa de serviço/reparo):</label>
-  <input type="number" id="mm1n_mu" step="0.01">
+    <div class="field">
+      <label>μ (taxa de serviço/reparo):</label>
+      <input type="number" id="mm1n_mu" step="0.01">
+    </div>
 
-  <label class="label-with-help">
-    N (população total possível):
-    <span class="tooltip" tabindex="0" data-tooltip="Total fixo de clientes possíveis, incluindo quem está no sistema e quem está fora dele. Exemplo: quantidade total de máquinas ou robôs.">?</span>
-  </label>
-  <input type="number" id="mm1n_n" step="1">
+    <div class="field">
+      <label class="label-with-help">
+        N (população total possível):
+        <span class="tooltip" tabindex="0" data-tooltip="Total fixo de clientes possíveis, incluindo quem está no sistema e quem está fora dele. Exemplo: quantidade total de máquinas ou robôs.">?</span>
+      </label>
+      <input type="number" id="mm1n_n" step="1">
+    </div>
+  </div>
 
-  <button onclick="calcularMM1N()">Calcular</button>
+  <div class="actions">
+    <button onclick="calcularMM1N()">Calcular</button>
+  </div>
 
   <div class="result" id="mm1n_result"></div>
 </div>
 
 <!-- M/M/s/N -->
 <div id="mmsn" class="content">
-  <h2>M/M/s/N</h2>
+  <h2>M/M/s &gt; 1/N</h2>
 
-  <label class="label-with-help">
-    λ (taxa de chegada/quebra por cliente externo):
-    <span class="tooltip" tabindex="0" data-tooltip="Taxa individual de chegada ou quebra para cada cliente que está fora do sistema. A chegada total diminui quando há mais clientes no sistema.">?</span>
-  </label>
-  <input type="number" id="mmsn_lambda" step="0.01">
+  <div class="form-grid">
+    <div class="field">
+      <label class="label-with-help">
+        λ (taxa de chegada/quebra por cliente externo):
+        <span class="tooltip" tabindex="0" data-tooltip="Taxa individual de chegada ou quebra para cada cliente que está fora do sistema. A chegada total diminui quando há mais clientes no sistema.">?</span>
+      </label>
+      <input type="number" id="mmsn_lambda" step="0.01">
+    </div>
 
-  <label class="label-with-help">
-    μ (taxa de serviço/reparo por servidor):
-    <span class="tooltip" tabindex="0" data-tooltip="Taxa de atendimento de cada servidor individualmente. Com vários servidores, a taxa total de saída depende de quantos estão ocupados.">?</span>
-  </label>
-  <input type="number" id="mmsn_mu" step="0.01">
+    <div class="field">
+      <label class="label-with-help">
+        μ (taxa de serviço/reparo por servidor):
+        <span class="tooltip" tabindex="0" data-tooltip="Taxa de atendimento de cada servidor individualmente. Com vários servidores, a taxa total de saída depende de quantos estão ocupados.">?</span>
+      </label>
+      <input type="number" id="mmsn_mu" step="0.01">
+    </div>
 
-  <label class="label-with-help">
-    s (nº de servidores/técnicos):
-    <span class="tooltip" tabindex="0" data-tooltip="Quantidade de servidores em paralelo. Neste modelo, s pode ser 1 ou mais e deve ser menor ou igual a N.">?</span>
-  </label>
-  <input type="number" id="mmsn_s" step="1">
+    <div class="field">
+      <label class="label-with-help">
+        s (nº de servidores/técnicos, maior que 1):
+        <span class="tooltip" tabindex="0" data-tooltip="Use 2 ou mais servidores nesta aba. Se houver apenas 1 servidor, use o modelo M/M/1/N.">?</span>
+      </label>
+      <input type="number" id="mmsn_s" min="2" step="1">
+    </div>
 
-  <label class="label-with-help">
-    N (população total possível):
-    <span class="tooltip" tabindex="0" data-tooltip="Total fixo de clientes possíveis, incluindo quem está no sistema e quem está fora dele. Exemplo: quantidade total de máquinas ou robôs.">?</span>
-  </label>
-  <input type="number" id="mmsn_n" step="1">
+    <div class="field">
+      <label class="label-with-help">
+        N (população total possível):
+        <span class="tooltip" tabindex="0" data-tooltip="Total fixo de clientes possíveis, incluindo quem está no sistema e quem está fora dele. Exemplo: quantidade total de máquinas ou robôs.">?</span>
+      </label>
+      <input type="number" id="mmsn_n" step="1">
+    </div>
+  </div>
 
-  <button onclick="calcularMMSN()">Calcular</button>
+  <div class="actions">
+    <button onclick="calcularMMSN()">Calcular</button>
+  </div>
 
   <div class="result" id="mmsn_result"></div>
 </div>
@@ -351,20 +452,36 @@ function calcularMG1() {
 function atualizarCamposPrioridades() {
   const k = Number(document.getElementById('prioridades_k').value);
   const container = document.getElementById('prioridades_lambdas');
+  const aviso = document.getElementById('prioridades_k_aviso');
   const valoresAtuais = Array.from(container.querySelectorAll('input')).map(input => input.value);
 
   if (!Number.isInteger(k) || k < 2) {
+    container.innerHTML = "";
+    aviso.hidden = false;
     return;
   }
 
+  aviso.hidden = true;
   container.innerHTML = Array.from({ length: k }, (_, indice) => `
-    <label>λ${indice + 1} (taxa da classe ${indice + 1}):</label>
-    <input type="number" id="prioridades_lambda_${indice + 1}" step="0.01" value="${valoresAtuais[indice] || ""}">
+    <div class="field">
+      <label>λ${indice + 1} (taxa da classe ${indice + 1}):</label>
+      <input type="number" id="prioridades_lambda_${indice + 1}" step="0.01" value="${valoresAtuais[indice] || ""}">
+    </div>
   `).join("");
+}
+
+function atualizarInterfacePrioridades() {
+  const regime = document.getElementById('prioridades_regime').value;
+  const campoServidores = document.getElementById('prioridades_servidores_campo');
+  const resultado = document.getElementById('prioridades_result');
+
+  campoServidores.style.display = regime === "sem" ? "block" : "none";
+  resultado.innerText = "";
 }
 
 function calcularPrioridades() {
   const k = Number(document.getElementById('prioridades_k').value);
+  const regime = document.getElementById('prioridades_regime').value;
   const mu = parseFloat(document.getElementById('prioridades_mu').value);
   const s = Number(document.getElementById('prioridades_s').value);
   const resultado = document.getElementById('prioridades_result');
@@ -379,7 +496,10 @@ function calcularPrioridades() {
       lambdas.push(parseFloat(document.getElementById(`prioridades_lambda_${indice}`).value));
     }
 
-    const valores = CalculosFilas.calcularPrioridadesSemInterrupcao(lambdas, mu, s);
+    const valores = regime === "com"
+      ? CalculosFilas.calcularPrioridadesComInterrupcao(lambdas, mu)
+      : CalculosFilas.calcularPrioridadesSemInterrupcao(lambdas, mu, s);
+    const regimeTexto = regime === "com" ? "Com interrupção" : "Sem interrupção";
     const classesHtml = valores.classes.map(classe => `
       <div class="priority-class-result">
         <h3>Classe ${classe.classe}</h3>
@@ -391,6 +511,7 @@ function calcularPrioridades() {
     `).join("");
 
     resultado.innerHTML = `
+      ${criarLinhaResultado("Regime", regimeTexto, "Tipo de regra usada quando classes de prioridades diferentes disputam atendimento.")}
       ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
       ${criarLinhaResultado("ρ", formatar(valores.rho), "Utilização global do sistema considerando todas as classes.")}
       ${criarLinhaResultado("λ total", formatar(valores.lambdaTotal), "Soma das taxas de chegada de todas as classes.")}
@@ -514,6 +635,7 @@ function calcularMMSN() {
 }
 
 atualizarCamposPrioridades();
+atualizarInterfacePrioridades();
 </script>
 
 </body>

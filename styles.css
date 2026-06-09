@@ -131,7 +131,7 @@ h3 {
 
 label {
   display: block;
-  margin-top: 10px;
+  margin-top: 0;
   color: var(--muted);
   font-size: 0.95rem;
   font-weight: 700;
@@ -145,7 +145,7 @@ label {
 }
 
 input {
-  width: min(100%, 360px);
+  width: min(100%, 420px);
   margin: 6px 0 12px;
   padding: 13px 14px;
   border: 1px solid var(--line-strong);
@@ -167,8 +167,79 @@ input:focus {
   transform: translateY(-1px);
 }
 
+select {
+  width: min(100%, 420px);
+  margin: 6px 0 12px;
+  padding: 13px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.form-grid,
+.dynamic-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  gap: 18px 22px;
+  align-items: end;
+  max-width: 920px;
+}
+
+.dynamic-fields {
+  display: contents;
+}
+
+.field {
+  min-width: 0;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.content-alert-slot {
+  display: flex;
+  justify-content: flex-end;
+  width: min(100%, var(--max-width));
+  margin: 12px auto 0;
+}
+
+.content-alert-slot:has(.field-warning[hidden]) {
+  display: none;
+}
+
+.field-warning {
+  width: min(420px, 100%);
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(184, 92, 56, 0.26);
+  border-radius: var(--radius-sm);
+  background: rgba(184, 92, 56, 0.08);
+  color: var(--primary-strong);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  box-shadow: 0 16px 34px rgba(83, 48, 28, 0.16);
+}
+
+.field-warning[hidden] {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  clear: both;
+}
+
 button {
-  margin-top: 14px;
+  margin-top: 0;
   padding: 13px 22px;
   border: 0;
   border-radius: 999px;
@@ -311,8 +382,17 @@ button:active {
     padding: 20px 16px;
   }
 
-  input {
+  input,
+  select {
     width: 100%;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    margin-top: 22px;
   }
 
   .result-row {

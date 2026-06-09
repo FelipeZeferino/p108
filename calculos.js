@@ -174,6 +174,56 @@
     };
   }
 
+  function calcularPrioridadesComInterrupcao(lambdas, mu) {
+    if (!Array.isArray(lambdas) || lambdas.length < 2) {
+      throw new Error("lambdas deve ser um array com pelo menos 2 taxas de chegada.");
+    }
+
+    lambdas.forEach((lambda, indice) => {
+      validarNumero(`λ${indice + 1}`, lambda, false);
+    });
+    validarNumero("μ", mu, false);
+
+    const lambdaTotal = lambdas.reduce((soma, lambda) => soma + lambda, 0);
+    const rho = lambdaTotal / mu;
+
+    if (rho >= 1) {
+      throw new Error("Sistema instável (ρ >= 1)");
+    }
+
+    const P0 = 1 - rho;
+    let lambdaAcumulado = 0;
+
+    const classes = lambdas.map((lambdaClasse, indice) => {
+      const sigmaAnterior = lambdaAcumulado / mu;
+      lambdaAcumulado += lambdaClasse;
+      const sigmaAtual = lambdaAcumulado / mu;
+      const W = (
+        1 / (mu * (1 - sigmaAnterior))
+      ) + (
+        lambdaAcumulado / (mu * mu * (1 - sigmaAnterior) * (1 - sigmaAtual))
+      );
+      const Wq = W - (1 / mu);
+      const L = lambdaClasse * W;
+      const Lq = lambdaClasse * Wq;
+
+      return {
+        classe: indice + 1,
+        W,
+        Wq,
+        L,
+        Lq
+      };
+    });
+
+    return {
+      P0,
+      rho,
+      lambdaTotal,
+      classes
+    };
+  }
+
   function calcularMM1KValores(lambda, mu, K) {
     validarNumero("λ", lambda, false);
     validarNumero("μ", mu, false);
@@ -394,6 +444,7 @@
     calcularMMSPopulacaoFinitaValores,
     calcularMMSKValores,
     calcularMMSValores,
+    calcularPrioridadesComInterrupcao,
     calcularPrioridadesSemInterrupcao,
     combinacao,
     fatorial

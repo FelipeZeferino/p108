@@ -9,7 +9,7 @@ A aplicação possui uma interface com abas para oito modelos de filas:
 - **M/M/1**: sistema com uma fila, um servidor, chegadas Poisson e tempo de serviço exponencial.
 - **M/M/s**: sistema com uma fila e múltiplos servidores.
 - **M/G/1**: sistema com um servidor e distribuição geral de atendimento, usando média e variância do tempo de serviço.
-- **Prioridades**: sistema com múltiplas classes de prioridade sem interrupção do atendimento em andamento.
+- **Prioridades**: sistema com múltiplas classes de prioridade, com opção sem ou com interrupção do atendimento.
 - **M/M/1/K**: sistema com um servidor e capacidade total limitada a `K` clientes.
 - **M/M/s/K**: sistema com múltiplos servidores e capacidade total limitada a `K` clientes.
 - **M/M/1/N**: sistema fechado com um servidor e população finita `N`.
@@ -24,7 +24,7 @@ Os cálculos são feitos diretamente no navegador, sem necessidade de servidor o
 - Cálculo de `P0`, `P(ocupado)`, `P(W > t)` e `P(Wq > t)` no modelo `M/M/1`.
 - Cálculo da taxa de chegada necessária para atingir um `W` alvo no modelo `M/M/1`.
 - Cálculo do modelo `M/G/1` pela fórmula de Pollaczek-Khintchine, incluindo casos com atendimento exponencial ou constante.
-- Cálculo de filas com prioridades sem interrupção, exibindo métricas globais e resultados por classe.
+- Cálculo de filas com prioridades sem ou com interrupção, exibindo métricas globais e resultados por classe.
 - Cálculo de bloqueio, taxa efetiva de entrada e distribuição `P0...PK` no modelo `M/M/1/K`.
 - Cálculo de bloqueio, taxa efetiva de entrada e distribuição `P0...PK` no modelo `M/M/s/K`.
 - Cálculo de população finita, taxa efetiva dependente de `N - L` e distribuição `P0...PN` no modelo `M/M/1/N`.
@@ -44,6 +44,7 @@ Os cálculos são feitos diretamente no navegador, sem necessidade de servidor o
    - `σ²`: variância do tempo de atendimento, usada no modelo `M/G/1`.
    - `t`: tempo usado para calcular as probabilidades `P(W > t)` e `P(Wq > t)`.
    - `W alvo`: tempo médio desejado no sistema para calcular a taxa de chegada correspondente.
+   - `Regime de prioridade`: define se o atendimento em andamento pode ser interrompido por uma classe mais alta.
    - `k`: número de classes de prioridade.
    - `λ1...λk`: taxas de chegada de cada classe de prioridade.
    - `s`: número de servidores, usado nos modelos `M/M/s`, `Prioridades`, `M/M/s/K` e `M/M/s/N`.
@@ -53,7 +54,7 @@ Os cálculos são feitos diretamente no navegador, sem necessidade de servidor o
 
 Use a aba **M/G/1** quando o atendimento não for necessariamente exponencial, mas a média e a variância do tempo de atendimento forem conhecidas.
 
-Use a aba **Prioridades** quando houver classes com ordem de atendimento diferente e o atendimento em andamento não puder ser interrompido.
+Use a aba **Prioridades** quando houver classes com ordem de atendimento diferente. Escolha **sem interrupção** quando o atendimento atual termina antes de trocar de classe, ou **com interrupção** quando uma classe maior pode pausar uma menor. A opção com interrupção usa o modelo M/M/1.
 
 Use a aba **M/M/1/K** quando o sistema tiver uma capacidade máxima e novas chegadas forem bloqueadas se o sistema estiver cheio.
 
@@ -111,4 +112,4 @@ Os testes usam o runner nativo do Node.js e não precisam de bibliotecas externa
 
 ## Observações
 
-O modelo `M/M/s` considera uma implementação simplificada das fórmulas de filas com múltiplos servidores. Para resultados válidos, a taxa de utilização deve ser menor que 1. O modelo `M/G/1` também exige `ρ < 1`. No modelo de prioridades, a classe 1 tem a maior prioridade e o atendimento em andamento não é interrompido. Nos modelos com capacidade limitada, `K` representa a capacidade total do sistema, incluindo clientes em atendimento e clientes na fila. Nos modelos com população finita, `N` representa a população total possível e a taxa efetiva é calculada por `λ(N - L)`.
+O modelo `M/M/s` considera uma implementação simplificada das fórmulas de filas com múltiplos servidores. Para resultados válidos, a taxa de utilização deve ser menor que 1. O modelo `M/G/1` também exige `ρ < 1`. No modelo de prioridades, a classe 1 tem a maior prioridade; sem interrupção mantém o atendimento atual e com interrupção usa prioridade preemptiva com retomada em M/M/1. Nos modelos com capacidade limitada, `K` representa a capacidade total do sistema, incluindo clientes em atendimento e clientes na fila. Nos modelos com população finita, `N` representa a população total possível e a taxa efetiva é calculada por `λ(N - L)`.

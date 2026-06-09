@@ -9,6 +9,7 @@ const {
   calcularMMSPopulacaoFinitaValores,
   calcularMMSKValores,
   calcularMMSValores,
+  calcularPrioridadesComInterrupcao,
   calcularPrioridadesSemInterrupcao,
   combinacao,
   fatorial
@@ -123,10 +124,36 @@ test("calcula prioridades sem interrupcao no exemplo da delegacia", () => {
   pertoDe(resultado.classes[1].Wq, 0.1007, 1e-3);
 });
 
+test("calcula prioridades com interrupcao no hospital com um servidor", () => {
+  const resultado = calcularPrioridadesComInterrupcao([0.2, 0.6, 1.2], 3);
+
+  pertoDe(resultado.rho, 0.6666666666666666);
+  pertoDe(resultado.P0, 0.33333333333333337);
+  pertoDe(resultado.lambdaTotal, 2);
+  pertoDe(resultado.classes[0].W, 0.35714285714285715);
+  pertoDe(resultado.classes[0].Wq, 0.023809523809523836);
+  pertoDe(resultado.classes[0].L, 0.07142857142857144);
+  pertoDe(resultado.classes[0].Lq, 0.004761904761904768);
+  pertoDe(resultado.classes[1].W, 0.487012987012987);
+  pertoDe(resultado.classes[1].Wq, 0.15367965367965368);
+  pertoDe(resultado.classes[1].L, 0.2922077922077922);
+  pertoDe(resultado.classes[1].Lq, 0.0922077922077922);
+  pertoDe(resultado.classes[2].W, 1.3636363636363633);
+  pertoDe(resultado.classes[2].Wq, 1.03030303030303);
+  pertoDe(resultado.classes[2].L, 1.636363636363636);
+  pertoDe(resultado.classes[2].Lq, 1.236363636363636);
+});
+
 test("bloqueia entradas invalidas em prioridades sem interrupcao", () => {
   assert.throws(() => calcularPrioridadesSemInterrupcao([1], 3, 1), /pelo menos 2/);
   assert.throws(() => calcularPrioridadesSemInterrupcao([1, 2], 3, 1.5), /s/);
   assert.throws(() => calcularPrioridadesSemInterrupcao([2, 2], 3, 1), /Sistema instável/);
+});
+
+test("bloqueia entradas invalidas em prioridades com interrupcao", () => {
+  assert.throws(() => calcularPrioridadesComInterrupcao([1], 3), /pelo menos 2/);
+  assert.throws(() => calcularPrioridadesComInterrupcao([1, 2], 0), /μ/);
+  assert.throws(() => calcularPrioridadesComInterrupcao([2, 2], 3), /Sistema instável/);
 });
 
 test("calcula o exemplo 1 do slide em M/M/1/K", () => {
