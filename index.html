@@ -342,11 +342,11 @@ function openTab(tabId) {
 }
 
 function formatar(valor) {
-  return valor.toFixed(2);
+  return valor.toFixed(4);
 }
 
 function formatarProbabilidade(valor) {
-  return `${valor.toFixed(4)} (${(valor * 100).toFixed(2)}%)`;
+  return `${valor.toFixed(4)} (${(valor * 100).toFixed(4)}%)`;
 }
 
 function criarLinhaResultado(nome, valor, tooltip) {
