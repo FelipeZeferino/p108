@@ -839,3 +839,75 @@ test("Capacidade limitada - Ex 6: terminal de descarga em M/M/1/K e M/M/s/K (K=4
   const r2 = calcularMMSKValores(3, 4, 2, 4);
   pertoDe(r2.Wq, 0.0288, 1e-4);
 });
+
+// ---------------------------------------------------------------------------
+// Lista de reparo de maquinas (fonte/populacao finita).
+// IMPORTANTE: o modelo correto de 1 reparador e' calcularMMSPopulacaoFinita
+// com s=1. A funcao calcularMM1PopulacaoFinitaValores usa C(N,n)*(λ/μ)^n
+// (binomial / servidores amplos) e NAO reproduz estes gabaritos.
+// Ex 5 pulado (custos b/c nao reproduziveis com modelo de custo consistente).
+// ---------------------------------------------------------------------------
+
+test("Populacao finita - Ex 1: 3 maquinas, 1 reparador (N=10, s=1) + custo diario", () => {
+  // λ=1/200/h; reparo 10h → μ=0,1/h; N=10; s=1.
+  const r = calcularMMSPopulacaoFinitaValores(0.005, 0.1, 1, 10);
+  pertoDe(r.P0, 0.5380, 1e-3);   // P0
+  pertoDe(r.Lq, 0.2972, 5e-4);   // Lq
+  pertoDe(r.L, 0.7593, 5e-4);    // L
+  pertoDe(r.Wq, 6.4330, 5e-3);   // Wq (software 6,4347; arred. do gabarito)
+  pertoDe(r.W, 16.4330, 5e-3);   // W  (software 16,4348)
+  // Custo total/dia: maquinas paradas (R$30/h) + mao de obra so quando ocupada
+  // (R$10/h), turno de 8h.
+  const CT = r.L * 30 * 8 + (1 - r.P0) * 10 * 8;
+  pertoDe(CT, 219.192, 5e-2);
+});
+
+test("Populacao finita - Ex 2: mineradora, 6 trens, 1 servidor (N=6, s=1)", () => {
+  // λ=1/30/h; abastecimento 6h40min → μ=0,15/h; N=6; s=1.
+  // ATENCAO: o gabarito troca rotulos: b)=Wq, d)=L, e)=Lq (valores corretos).
+  const r = calcularMMSPopulacaoFinitaValores(1 / 30, 0.15, 1, 6);
+  pertoDe(r.W, 17.2906, 1e-3);              // a) tempo no sistema
+  pertoDe(r.Wq, 10.6239, 1e-3);            // b) gabarito rotula "Lq", mas e' Wq
+  pertoDe(r.probabilidades[4], 0.1353, 5e-4); // c) P(4 no sistema)
+  pertoDe(r.L, 2.1937, 1e-3);              // d) gabarito rotula "W", mas e' L
+  pertoDe(r.Lq, 1.3479, 1e-3);            // e) gabarito rotula "Wq", mas e' Lq
+});
+
+test("Populacao finita - Ex 3: 1 tecnico, 2 maquinas (N=2, s=1)", () => {
+  // λ=1/10/h; reparo 8h → μ=0,125/h; N=2; s=1.
+  const r = calcularMMSPopulacaoFinitaValores(0.1, 0.125, 1, 2);
+  pertoDe(r.P0, 0.2577, 5e-4);   // a) P0
+  pertoDe(r.L, 1.072, 1e-3);     // b) L
+  pertoDe(r.Lq, 0.330, 1e-3);    // b) Lq
+  pertoDe(r.W, 11.556, 1e-3);    // b) W
+  pertoDe(r.Wq, 3.556, 1e-3);    // b) Wq
+  pertoDe(1 - r.P0, 0.7423, 5e-4);            // c) tecnico ocupado = 1-P0
+  pertoDe(r.clientesFora / 2, 0.464, 5e-4);   // d) maquina operando = (N-L)/N
+});
+
+test("Populacao finita - Ex 4: Forrester, 1 tecnico, 3 maquinas (N=3, s=1 e s=2)", () => {
+  // λ=1/9/h; reparo 2h → μ=0,5/h; N=3.
+  const s1 = calcularMMSPopulacaoFinitaValores(1 / 9, 0.5, 1, 3);
+  pertoDe(s1.L, 0.7181, 5e-4);   // a) maquinas paradas
+  pertoDe(s1.W, 2.832, 1e-3);    // b) tempo entre quebra e fim do reparo
+  // c) pulado: gabarito 0,667 (=N·λ/μ) e' incoerente; o correto seria 1-P0=0,5071.
+
+  // d) segundo tecnico disponivel (s=2).
+  const s2 = calcularMMSPopulacaoFinitaValores(1 / 9, 0.5, 2, 3);
+  pertoDe(s2.L, 0.5528, 5e-4);
+});
+
+test("Populacao finita - Ex 6: 4M Company, 4 maquinas, 2 tecnicos (N=4, s=2)", () => {
+  // λ=1/100/h; reparo 10h → μ=0,1/h; N=4; s=2.
+  const r = calcularMMSPopulacaoFinitaValores(0.01, 0.1, 2, 4);
+  pertoDe(r.P0, 0.6820, 5e-4);    // a) P0
+  pertoDe(r.L, 0.3677, 5e-4);     // b) L
+  pertoDe(r.Lq, 0.0045, 5e-5);    // b) Lq
+  pertoDe(r.W, 10.1239, 1e-3);    // b) W
+  pertoDe(r.Wq, 0.1239, 5e-4);    // b) Wq
+  pertoDe(1 - r.P0, 0.3180, 5e-4); // c) tecnico ocupado = 1-P0
+  // d) "maquina operando": gabarito traz 0,8184 = ociosidade media do servidor;
+  // o valor literal (N-L)/N = 0,9081. Asseguro os dois.
+  pertoDe(r.ociosidadeMediaServidor, 0.8184, 5e-4);
+  pertoDe(r.clientesFora / 4, 0.9081, 5e-4);
+});
