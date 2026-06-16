@@ -17,11 +17,15 @@
     return fatorial(total) / (fatorial(total - escolhidos) * fatorial(escolhidos));
   }
 
-  function calcularMM1Valores(lambda, mu, tempo, wAlvo) {
+  function calcularMM1Valores(lambda, mu, tempo, wAlvo, nMaxProbabilidade = 10) {
     validarNumero("λ", lambda, false);
     validarNumero("μ", mu, false);
     validarNumero("t", tempo, true);
     validarNumero("W alvo", wAlvo, false);
+
+    if (!Number.isInteger(nMaxProbabilidade) || nMaxProbabilidade < 0) {
+      throw new Error("n máximo deve ser um número inteiro maior ou igual a zero.");
+    }
 
     if (lambda >= mu) {
       throw new Error("Sistema instável (λ >= μ)");
@@ -37,11 +41,17 @@
     const probWMaiorQueT = Math.exp(-(mu - lambda) * tempo);
     const probWqMaiorQueT = rho * Math.exp(-(mu - lambda) * tempo);
     const lambdaParaWAlvo = mu - (1 / wAlvo);
+    const probabilidades = [];
+
+    for (let n = 0; n <= nMaxProbabilidade; n++) {
+      probabilidades.push(P0 * Math.pow(rho, n));
+    }
 
     return {
       rho,
       P0,
       POcupado,
+      probabilidades,
       L,
       Lq,
       W,
@@ -52,7 +62,7 @@
     };
   }
 
-  function calcularMMSValores(lambda, mu, s, tempo) {
+  function calcularMMSValores(lambda, mu, s, tempo, nMaxProbabilidade = 10) {
     validarNumero("λ", lambda, false);
     validarNumero("μ", mu, false);
     validarNumero("t", tempo, true);
@@ -61,7 +71,12 @@
       throw new Error("s deve ser um número inteiro maior que zero.");
     }
 
+    if (!Number.isInteger(nMaxProbabilidade) || nMaxProbabilidade < 0) {
+      throw new Error("n máximo deve ser um número inteiro maior ou igual a zero.");
+    }
+
     const rho = lambda / (s * mu);
+    const lambdaSobreMu = lambda / mu;
 
     if (rho >= 1) {
       throw new Error("Sistema instável (ρ >= 1)");
@@ -69,17 +84,27 @@
 
     let soma = 0;
     for (let n = 0; n < s; n++) {
-      soma += Math.pow(lambda / mu, n) / fatorial(n);
+      soma += Math.pow(lambdaSobreMu, n) / fatorial(n);
     }
 
-    const parte2 = Math.pow(lambda / mu, s) / (fatorial(s) * (1 - rho));
+    const parte2 = Math.pow(lambdaSobreMu, s) / (fatorial(s) * (1 - rho));
     const P0 = 1 / (soma + parte2);
-    const Lq = (P0 * Math.pow(lambda / mu, s) * rho) / (fatorial(s) * Math.pow(1 - rho, 2));
+    const Lq = (P0 * Math.pow(lambdaSobreMu, s) * rho) / (fatorial(s) * Math.pow(1 - rho, 2));
     const Wq = Lq / lambda;
     const W = Wq + (1 / mu);
     const L = lambda * W;
     const probEsperar = parte2 * P0;
     const taxaEspera = (s * mu) - lambda;
+    const probabilidades = [];
+
+    for (let n = 0; n <= nMaxProbabilidade; n++) {
+      const Pn = n < s
+        ? P0 * Math.pow(lambdaSobreMu, n) / fatorial(n)
+        : P0 * Math.pow(lambdaSobreMu, n) / (fatorial(s) * Math.pow(s, n - s));
+
+      probabilidades.push(Pn);
+    }
+
     const probWqMaiorQueT = probEsperar * Math.exp(-taxaEspera * tempo);
     const probWMaiorQueT = Math.abs(taxaEspera - mu) < 1e-12
       ? ((1 - probEsperar) * Math.exp(-mu * tempo)) + (probEsperar * Math.exp(-mu * tempo) * (1 + mu * tempo))
@@ -95,6 +120,7 @@
       W,
       L,
       probEsperar,
+      probabilidades,
       probWMaiorQueT,
       probWqMaiorQueT
     };
@@ -216,15 +242,25 @@
 
     const P0 = 1 / (somaMMs + (Math.pow(r, s) / (fatorial(s) * (1 - rho))));
     let lambdaAcumulado = 0;
+    let somaLambdaVezesW = 0;
 
     const classes = lambdas.map((lambdaClasse, indice) => {
-      const sigmaAnterior = lambdaAcumulado / (s * mu);
       lambdaAcumulado += lambdaClasse;
-      const sigmaAtual = lambdaAcumulado / (s * mu);
-      const W = (1 / mu) / ((1 - sigmaAnterior) * (1 - sigmaAtual));
+      let W;
+
+      if (s === 1) {
+        const sigmaAnterior = (lambdaAcumulado - lambdaClasse) / mu;
+        const sigmaAtual = lambdaAcumulado / mu;
+        W = (1 / mu) / ((1 - sigmaAnterior) * (1 - sigmaAtual));
+      } else {
+        const WMedioAcumulado = calcularMMSValores(lambdaAcumulado, mu, s, 0).W;
+        W = ((lambdaAcumulado * WMedioAcumulado) - somaLambdaVezesW) / lambdaClasse;
+      }
+
+      somaLambdaVezesW += lambdaClasse * W;
       const Wq = W - (1 / mu);
-      const L = lambdaClasse * W;
-      const Lq = lambdaClasse * Wq;
+      const L = lambdaAcumulado * W;
+      const Lq = L - (lambdaAcumulado / mu);
 
       return {
         classe: indice + 1,

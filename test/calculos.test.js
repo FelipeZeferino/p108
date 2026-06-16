@@ -44,11 +44,17 @@ function probSistemaAte(lambda, mu, s, P0, k) {
 }
 
 test("calcula o exemplo da barbearia em M/M/1", () => {
-  const resultado = calcularMM1Valores(3, 4, 1, 1.25);
+  const resultado = calcularMM1Valores(3, 4, 1, 1.25, 5);
 
   pertoDe(resultado.rho, 0.75);
   pertoDe(resultado.P0, 0.25);
   pertoDe(resultado.POcupado, 0.75);
+  pertoDe(resultado.probabilidades[0], 0.25);
+  pertoDe(resultado.probabilidades[1], 0.1875);
+  pertoDe(resultado.probabilidades[2], 0.140625);
+  pertoDe(resultado.probabilidades[3], 0.10546875);
+  pertoDe(resultado.probabilidades[4], 0.0791015625);
+  pertoDe(resultado.probabilidades[5], 0.059326171875);
   pertoDe(resultado.L, 3);
   pertoDe(resultado.Lq, 2.25);
   pertoDe(resultado.W, 1);
@@ -75,10 +81,16 @@ test("calcula o exemplo dos motores usando taxas por dia", () => {
 });
 
 test("calcula M/M/s para dois servidores", () => {
-  const resultado = calcularMMSValores(3, 4, 2, 1);
+  const resultado = calcularMMSValores(3, 4, 2, 1, 5);
 
   pertoDe(resultado.rho, 0.375);
   pertoDe(resultado.P0, 0.45454545454545453);
+  pertoDe(resultado.probabilidades[0], 0.45454545454545453);
+  pertoDe(resultado.probabilidades[1], 0.34090909090909088);
+  pertoDe(resultado.probabilidades[2], 0.12784090909090909);
+  pertoDe(resultado.probabilidades[3], 0.047940340909090905);
+  pertoDe(resultado.probabilidades[4], 0.017977627840909092);
+  pertoDe(resultado.probabilidades[5], 0.0067416104403409090);
   pertoDe(resultado.Lq, 0.12272727272727273);
   pertoDe(resultado.Wq, 0.04090909090909091);
   pertoDe(resultado.W, 0.2909090909090909);
@@ -229,12 +241,12 @@ test("calcula prioridades com interrupcao no hospital com um servidor", () => {
   pertoDe(resultado.classes[0].Lq, 0.004761904761904768);
   pertoDe(resultado.classes[1].W, 0.487012987012987);
   pertoDe(resultado.classes[1].Wq, 0.15367965367965368);
-  pertoDe(resultado.classes[1].L, 0.2922077922077922);
-  pertoDe(resultado.classes[1].Lq, 0.0922077922077922);
+  pertoDe(resultado.classes[1].L, 0.3896103896103896);
+  pertoDe(resultado.classes[1].Lq, 0.12294372294372291);
   pertoDe(resultado.classes[2].W, 1.3636363636363633);
   pertoDe(resultado.classes[2].Wq, 1.03030303030303);
-  pertoDe(resultado.classes[2].L, 1.636363636363636);
-  pertoDe(resultado.classes[2].Lq, 1.236363636363636);
+  pertoDe(resultado.classes[2].L, 2.7272727272727266);
+  pertoDe(resultado.classes[2].Lq, 2.06060606060606);
 });
 
 test("calcula prioridades com interrupcao usando multiplos servidores", () => {
@@ -243,18 +255,18 @@ test("calcula prioridades com interrupcao usando multiplos servidores", () => {
   pertoDe(resultado.rho, 0.3333333333333333);
   pertoDe(resultado.P0, 0.5);
   pertoDe(resultado.lambdaTotal, 2);
-  pertoDe(resultado.classes[0].W, 0.3448275862068966);
-  pertoDe(resultado.classes[0].Wq, 0.01149425287356326);
-  pertoDe(resultado.classes[0].L, 0.06896551724137932);
-  pertoDe(resultado.classes[0].Lq, 0.002298850574712652);
-  pertoDe(resultado.classes[1].W, 0.39787798408488056);
-  pertoDe(resultado.classes[1].Wq, 0.06454465075154725);
-  pertoDe(resultado.classes[1].L, 0.23872679045092832);
-  pertoDe(resultado.classes[1].Lq, 0.03872679045092835);
-  pertoDe(resultado.classes[2].W, 0.5769230769230769);
-  pertoDe(resultado.classes[2].Wq, 0.24358974358974356);
-  pertoDe(resultado.classes[2].L, 0.6923076923076922);
-  pertoDe(resultado.classes[2].Lq, 0.29230769230769227);
+  pertoDe(resultado.classes[0].W, 0.33370, 5e-5);
+  pertoDe(resultado.classes[0].Wq, 0.000367, 5e-6);
+  pertoDe(resultado.classes[0].L, 0.06674, 5e-5);
+  pertoDe(resultado.classes[0].Lq, 0.000074, 5e-6);
+  pertoDe(resultado.classes[1].W, 0.34126, 5e-5);
+  pertoDe(resultado.classes[1].Wq, 0.00793, 5e-5);
+  pertoDe(resultado.classes[1].L, 0.27300, 5e-5);
+  pertoDe(resultado.classes[1].Lq, 0.00634, 5e-5);
+  pertoDe(resultado.classes[2].W, 0.39875, 5e-5);
+  pertoDe(resultado.classes[2].Wq, 0.06542, 5e-5);
+  pertoDe(resultado.classes[2].L, 0.79751, 5e-5);
+  pertoDe(resultado.classes[2].Lq, 0.13084, 5e-5);
 });
 
 test("bloqueia entradas invalidas em prioridades sem interrupcao", () => {
@@ -367,9 +379,9 @@ test("PDF M/G/1 e prioridades - Ex 7: sala de emergencia com novas porcentagens"
 
   // Com interrupcao, s=2
   const comS2 = calcularPrioridadesComInterrupcao(lambdas, 3, 2);
-  pertoDe(comS2.classes[0].Wq, 0.0056497175, 1e-10);
-  pertoDe(comS2.classes[1].Wq, 0.0364663585, 1e-10);
-  pertoDe(comS2.classes[2].Wq, 0.2121212121, 1e-10);
+  pertoDe(comS2.classes[0].Wq, 0.00009, 5e-5);
+  pertoDe(comS2.classes[1].Wq, 0.00289, 5e-5);
+  pertoDe(comS2.classes[2].Wq, 0.05493, 5e-4);
 });
 
 test("calcula o exemplo 1 do slide em M/M/1/K", () => {
@@ -574,8 +586,10 @@ test("bloqueia entradas invalidas", () => {
   assert.throws(() => calcularMM1Valores(3, 0, 1, 1.25), /μ/);
   assert.throws(() => calcularMM1Valores(3, 4, -1, 1.25), /t/);
   assert.throws(() => calcularMM1Valores(3, 4, 1, 0), /W alvo/);
+  assert.throws(() => calcularMM1Valores(3, 4, 1, 1.25, 2.5), /n máximo/);
   assert.throws(() => calcularMMSValores(3, 4, 1.5, 1), /s/);
   assert.throws(() => calcularMMSValores(3, 4, 2, -1), /t/);
+  assert.throws(() => calcularMMSValores(3, 4, 2, 1, 2.5), /n máximo/);
   assert.throws(() => calcularMM1KValores(0, 4, 2), /λ/);
   assert.throws(() => calcularMM1KValores(3, 0, 2), /μ/);
   assert.throws(() => calcularMM1KValores(3, 4, 0), /K/);

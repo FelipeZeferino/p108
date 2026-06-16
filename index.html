@@ -51,6 +51,14 @@
       </label>
       <input type="number" id="mm1_w_alvo" step="0.01" value="1.25">
     </div>
+
+    <div class="field">
+      <label class="label-with-help">
+        n máximo para distribuição Pn:
+        <span class="tooltip" tabindex="0" data-tooltip="Como o modelo M/M/1 tem capacidade infinita, a distribuição possui infinitos estados. Informe até qual n deseja listar, de P0 até Pn.">?</span>
+      </label>
+      <input type="number" id="mm1_n_max" min="0" step="1" value="10">
+    </div>
   </div>
 
   <div class="actions">
@@ -95,6 +103,14 @@
         <span class="tooltip" tabindex="0" data-tooltip="Use este campo quando o exercício perguntar a probabilidade de o tempo ser maior que algum valor. Use a mesma unidade de λ e μ.">?</span>
       </label>
       <input type="number" id="mms_tempo" step="0.01" value="1">
+    </div>
+
+    <div class="field">
+      <label class="label-with-help">
+        n máximo para distribuição Pn:
+        <span class="tooltip" tabindex="0" data-tooltip="Como o modelo M/M/s tem capacidade infinita, a distribuição possui infinitos estados. Informe até qual n deseja listar, de P0 até Pn.">?</span>
+      </label>
+      <input type="number" id="mms_n_max" min="0" step="1" value="10">
     </div>
   </div>
 
@@ -367,7 +383,7 @@ function criarLinhaResultado(nome, valor, tooltip) {
   `;
 }
 
-function criarLinhasProbabilidades(probabilidades) {
+function criarLinhasProbabilidades(probabilidades, titulo = "Distribuição de probabilidades") {
   const linhas = probabilidades.map((probabilidade, indice) =>
     criarLinhaResultado(
       `P${indice}`,
@@ -378,7 +394,7 @@ function criarLinhasProbabilidades(probabilidades) {
 
   return `
     <div class="probability-list">
-      <h3>Distribuição de probabilidades</h3>
+      <h3>${titulo}</h3>
       ${linhas}
     </div>
   `;
@@ -390,11 +406,12 @@ function calcularMM1() {
   const mu = parseFloat(document.getElementById('mm1_mu').value);
   const tempo = parseFloat(document.getElementById('mm1_tempo').value);
   const wAlvo = parseFloat(document.getElementById('mm1_w_alvo').value);
+  const nMaxProbabilidade = Number(document.getElementById('mm1_n_max').value);
   const resultado = document.getElementById('mm1_result');
 
   let valores;
   try {
-    valores = CalculosFilas.calcularMM1Valores(lambda, mu, tempo, wAlvo);
+    valores = CalculosFilas.calcularMM1Valores(lambda, mu, tempo, wAlvo, nMaxProbabilidade);
   } catch (erro) {
     resultado.innerText = erro.message;
     return;
@@ -415,6 +432,7 @@ function calcularMM1() {
     ${criarLinhaResultado(`P(W > ${formatar(tempo)})`, formatarProbabilidade(valores.probWMaiorQueT), "Probabilidade de o tempo total no sistema ser maior que o tempo t informado.")}
     ${criarLinhaResultado(`P(Wq > ${formatar(tempo)})`, formatarProbabilidade(valores.probWqMaiorQueT), "Probabilidade de o tempo de espera na fila ser maior que o tempo t informado.")}
     ${criarLinhaResultado("λ para W alvo", lambdaParaWAlvoTexto, "Taxa de chegada que faria o tempo médio no sistema atingir o W alvo informado, mantendo a mesma taxa de serviço μ.")}
+    ${criarLinhasProbabilidades(valores.probabilidades, `Distribuição de probabilidades P0...P${nMaxProbabilidade}`)}
   `;
 }
 
@@ -423,11 +441,12 @@ function calcularMMS() {
   const mu = parseFloat(document.getElementById('mms_mu').value);
   const s = Number(document.getElementById('mms_s').value);
   const tempo = parseFloat(document.getElementById('mms_tempo').value);
+  const nMaxProbabilidade = Number(document.getElementById('mms_n_max').value);
   const resultado = document.getElementById('mms_result');
 
   let valores;
   try {
-    valores = CalculosFilas.calcularMMSValores(lambda, mu, s, tempo);
+    valores = CalculosFilas.calcularMMSValores(lambda, mu, s, tempo, nMaxProbabilidade);
   } catch (erro) {
     resultado.innerText = erro.message;
     return;
@@ -442,6 +461,7 @@ function calcularMMS() {
     ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio que um cliente permanece no sistema, incluindo espera e atendimento.")}
     ${criarLinhaResultado(`P(W > ${formatar(tempo)})`, formatarProbabilidade(valores.probWMaiorQueT), "Probabilidade de o tempo total no sistema ser maior que o tempo t informado.")}
     ${criarLinhaResultado(`P(Wq > ${formatar(tempo)})`, formatarProbabilidade(valores.probWqMaiorQueT), "Probabilidade de o tempo de espera na fila ser maior que o tempo t informado.")}
+    ${criarLinhasProbabilidades(valores.probabilidades, `Distribuição de probabilidades P0...P${nMaxProbabilidade}`)}
   `;
 }
 
