@@ -405,9 +405,9 @@ function calcularMM1() {
     : "Não aplicável";
 
   resultado.innerHTML = `
-    ${criarLinhaResultado("ρ", formatar(valores.rho), "Taxa de utilização do sistema. Indica a fração do tempo em que o barbeiro fica ocupado.")}
-    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de não haver clientes no sistema. Também representa a chance de um cliente chegar e não precisar esperar.")}
-    ${criarLinhaResultado("P(ocupado)", formatarProbabilidade(valores.POcupado), "Probabilidade de o servidor estar ocupado. Em M/M/1, é igual a ρ.")}
+    ${criarLinhaResultado("ρ / utilização", formatar(valores.rho), "Taxa de utilização do sistema. Indica a fração do tempo em que o barbeiro fica ocupado.")}
+    ${criarLinhaResultado("P0 / sistema vazio", formatarProbabilidade(valores.P0), "Probabilidade de não haver clientes no sistema. Também representa a chance de um cliente chegar e não precisar esperar.")}
+    ${criarLinhaResultado("P(servidor ocupado)", formatarProbabilidade(valores.POcupado), "Probabilidade de o servidor estar ocupado. Em M/M/1, é igual a ρ.")}
     ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo quem está em atendimento e quem está na fila.")}
     ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila antes do atendimento começar.")}
     ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio que um cliente permanece no sistema, incluindo espera na fila e atendimento.")}
@@ -434,8 +434,8 @@ function calcularMMS() {
   }
 
   resultado.innerHTML = `
-    ${criarLinhaResultado("ρ", formatar(valores.rho), "Utilização média de cada servidor. Indica a fração do tempo em que um servidor fica ocupado.")}
-    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de não haver clientes no sistema.")}
+    ${criarLinhaResultado("ρ / utilização", formatar(valores.rho), "Utilização média de cada servidor. Indica a fração do tempo em que um servidor fica ocupado.")}
+    ${criarLinhaResultado("P0 / sistema vazio", formatarProbabilidade(valores.P0), "Probabilidade de não haver clientes no sistema.")}
     ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila antes do atendimento começar.")}
     ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo fila e atendimento.")}
     ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio que um cliente espera na fila antes de começar o atendimento.")}
@@ -460,8 +460,8 @@ function calcularMG1() {
   }
 
   resultado.innerHTML = `
-    ${criarLinhaResultado("ρ", formatar(valores.rho), "Utilização do servidor. Indica a fração média de tempo ocupado.")}
-    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
+    ${criarLinhaResultado("ρ / utilização", formatar(valores.rho), "Utilização do servidor. Indica a fração média de tempo ocupado.")}
+    ${criarLinhaResultado("P0 / sistema vazio", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
     ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando atendimento.")}
     ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo fila e atendimento.")}
     ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio de espera na fila antes do atendimento.")}
@@ -529,8 +529,8 @@ function calcularPrioridades() {
 
     resultado.innerHTML = `
       ${criarLinhaResultado("Regime", regimeTexto, "Tipo de regra usada quando classes de prioridades diferentes disputam atendimento.")}
-      ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
-      ${criarLinhaResultado("ρ", formatar(valores.rho), "Utilização global do sistema considerando todas as classes.")}
+      ${criarLinhaResultado("P0 / sistema vazio", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
+      ${criarLinhaResultado("ρ / utilização", formatar(valores.rho), "Utilização global do sistema considerando todas as classes.")}
       ${criarLinhaResultado("λ total", formatar(valores.lambdaTotal), "Soma das taxas de chegada de todas as classes.")}
       ${classesHtml}
     `;
@@ -554,9 +554,9 @@ function calcularMM1K() {
   }
 
   resultado.innerHTML = `
-    ${criarLinhaResultado("ρ", formatar(valores.rho), "Razão de tráfego do sistema, calculada por λ / μ.")}
-    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
-    ${criarLinhaResultado("PK / bloqueio", formatarProbabilidade(valores.PK), "Probabilidade de o sistema estar cheio. Uma chegada nesse estado é bloqueada.")}
+    ${criarLinhaResultado("ρ / utilização", formatar(valores.rho), "Razão de tráfego do sistema, calculada por λ / μ.")}
+    ${criarLinhaResultado("P0 / sistema vazio", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
+    ${criarLinhaResultado("PK / sistema cheio", formatarProbabilidade(valores.PK), "Probabilidade de o sistema estar cheio. Uma chegada nesse estado é bloqueada.")}
     ${criarLinhaResultado("λ efetiva", formatar(valores.lambdaEfetiva), "Taxa real de entrada no sistema depois de descontar as chegadas bloqueadas.")}
     ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo atendimento e fila.")}
     ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila.")}
@@ -582,9 +582,9 @@ function calcularMMSK() {
   }
 
   resultado.innerHTML = `
-    ${criarLinhaResultado("ρ", formatar(valores.rho), "Razão de tráfego do sistema, calculada por λ / (sμ).")}
-    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
-    ${criarLinhaResultado("PK / bloqueio", formatarProbabilidade(valores.PK), "Probabilidade de o sistema estar cheio. Uma chegada nesse estado é bloqueada.")}
+    ${criarLinhaResultado("ρ / utilização", formatar(valores.rho), "Razão de tráfego do sistema, calculada por λ / (sμ).")}
+    ${criarLinhaResultado("P0 / sistema vazio", formatarProbabilidade(valores.P0), "Probabilidade de o sistema estar vazio.")}
+    ${criarLinhaResultado("PK / sistema cheio", formatarProbabilidade(valores.PK), "Probabilidade de o sistema estar cheio. Uma chegada nesse estado é bloqueada.")}
     ${criarLinhaResultado("λ efetiva", formatar(valores.lambdaEfetiva), "Taxa real de entrada no sistema após descontar as chegadas bloqueadas.")}
     ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo atendimento e fila.")}
     ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila.")}
@@ -609,8 +609,8 @@ function calcularMM1N() {
   }
 
   resultado.innerHTML = `
-    ${criarLinhaResultado("P0 / ocioso", formatarProbabilidade(valores.probOcioso), "Probabilidade de não haver clientes no sistema. Também representa a probabilidade de o técnico ou servidor estar ocioso.")}
-    ${criarLinhaResultado("P(ocupado)", formatarProbabilidade(valores.probOcupado), "Probabilidade de existir pelo menos um cliente no sistema, deixando o servidor ocupado.")}
+    ${criarLinhaResultado("P0 / sistema vazio", formatarProbabilidade(valores.probOcioso), "Probabilidade de não haver clientes no sistema. Também representa a probabilidade de o técnico ou servidor estar ocioso.")}
+    ${criarLinhaResultado("P(servidor ocupado)", formatarProbabilidade(valores.probOcupado), "Probabilidade de existir pelo menos um cliente no sistema, deixando o servidor ocupado.")}
     ${criarLinhaResultado("λ efetiva", formatar(valores.lambdaEfetiva), "Taxa real de entrada no sistema. Em população finita, é λ multiplicado pelo número médio de clientes fora do sistema.")}
     ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo atendimento e fila.")}
     ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila.")}
@@ -637,7 +637,7 @@ function calcularMMSN() {
   }
 
   resultado.innerHTML = `
-    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de não haver clientes no sistema. Nesse estado, todos os servidores estão ociosos.")}
+    ${criarLinhaResultado("P0 / sistema vazio", formatarProbabilidade(valores.P0), "Probabilidade de não haver clientes no sistema. Nesse estado, todos os servidores estão ociosos.")}
     ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo atendimento e fila.")}
     ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila.")}
     ${criarLinhaResultado("λ efetiva", formatar(valores.lambdaEfetiva), "Taxa real de entrada no sistema. Em população finita, é λ multiplicado pelo número médio de clientes fora do sistema.")}

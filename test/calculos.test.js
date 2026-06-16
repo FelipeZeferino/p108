@@ -110,7 +110,11 @@ test("calcula M/G/1 com atendimento constante no exemplo do lava-rapido", () => 
   pertoDe(resultadoConstante.Lq / resultadoExponencial.Lq, 0.5, 1e-12);
 });
 
-test("calcula M/G/1 variando sigma com lambda 0,2 e mu 0,25", () => {
+// ---------------------------------------------------------------------------
+// Lista de exercícios Modelo M/G/1 e com prioridades (PDF enviado).
+// ---------------------------------------------------------------------------
+
+test("PDF M/G/1 e prioridades - Ex 1: variacao de sigma com lambda 0,2 e mu 0,25", () => {
   // Enunciado dá sigma (desvio padrao); a funcao recebe sigma² (variancia).
   const gabarito = {
     4: { Lq: 3.2, L: 4.0, Wq: 16.0, W: 20.0 },
@@ -145,7 +149,7 @@ test("calcula M/G/1 variando sigma com lambda 0,2 e mu 0,25", () => {
   pertoDe(LqMuAumentado, 1.6, 5e-2);
 });
 
-test("calcula M/D/1 do armazem de caminhoes com atendimento constante", () => {
+test("PDF M/G/1 e prioridades - Ex 2: armazem de caminhoes com atendimento constante", () => {
   // λ = 3 caminhoes/h; atendimento medio de 15 min -> μ = 4/h.
   // O gabarito usa tempo de atendimento CONSTANTE (M/D/1 = M/G/1 com σ²=0).
   const resultado = calcularMG1Valores(3, 4, 0);
@@ -157,7 +161,7 @@ test("calcula M/D/1 do armazem de caminhoes com atendimento constante", () => {
   pertoDe(resultado.rho, 0.75, 1e-9); // e) taxa de ocupacao = 75%
 });
 
-test("calcula M/M/1 a partir de Lq medido = 2 na fila unica", () => {
+test("PDF M/G/1 e prioridades - Ex 3: M/M/1 a partir de Lq medido = 2", () => {
   // Dados: λ = 3/h e Lq = 2. Resolvendo ρ²/(1 - ρ) = 2 -> ρ = √3 - 1,
   // logo μ = λ/ρ. A funcao recebe (λ, μ), entao derivamos μ a partir do Lq.
   const lambda = 3;
@@ -266,7 +270,7 @@ test("bloqueia entradas invalidas em prioridades com interrupcao", () => {
   assert.throws(() => calcularPrioridadesComInterrupcao([2, 2], 3, 1), /Sistema instável/);
 });
 
-test("calcula prioridades sem interrupcao na Southeast Airlines (exercicio 4)", () => {
+test("PDF M/G/1 e prioridades - Ex 4: Southeast Airlines sem interrupcao", () => {
   // λ1=2, λ2=10 por hora; atendimento medio 3 min -> μ=20/h; s=1.
   const resultado = calcularPrioridadesSemInterrupcao([2, 10], 20, 1);
 
@@ -289,7 +293,7 @@ test("calcula prioridades sem interrupcao na Southeast Airlines (exercicio 4)", 
   pertoDe(resultado.rho * 12, 7.2, 1e-9);
 });
 
-test("compara um atendente rapido e dois lentos sem interrupcao (exercicio 5)", () => {
+test("PDF M/G/1 e prioridades - Ex 5: um atendente rapido vs dois lentos", () => {
   const umRapido = calcularPrioridadesSemInterrupcao([2, 3], 6, 1); // alt 1: μ=6, s=1
   const doisLentos = calcularPrioridadesSemInterrupcao([2, 3], 3, 2); // alt 2: μ=3, s=2
 
@@ -321,7 +325,7 @@ test("compara um atendente rapido e dois lentos sem interrupcao (exercicio 5)", 
   assert.ok(doisLentos.classes[0].Wq < umRapido.classes[0].Wq);
 });
 
-test("compara disciplinas de fila na ferramentaria (exercicio 6)", () => {
+test("PDF M/G/1 e prioridades - Ex 6: disciplinas de fila na ferramentaria", () => {
   // λtotal=8/dia, atendimento 0,1 dia -> μ=10/dia; tipos λ=[2,4,2].
   // a) FCFS: W igual para todos = 1/(μ-λ) = 0,5
   pertoDe(calcularMM1Valores(8, 10, 1, 1).W, 0.5, 1e-9);
@@ -339,7 +343,7 @@ test("compara disciplinas de fila na ferramentaria (exercicio 6)", () => {
   pertoDe(comInterrupcao.classes[2].W, 1.25, 1e-9);
 });
 
-test("calcula prioridades na sala de emergencia com novas porcentagens (exercicio 7)", () => {
+test("PDF M/G/1 e prioridades - Ex 7: sala de emergencia com novas porcentagens", () => {
   // λtotal=2, μ=3; 5%/20%/75% -> λ=[0,1, 0,4, 1,5].
   const lambdas = [0.1, 0.4, 1.5];
 
