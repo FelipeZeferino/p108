@@ -333,7 +333,7 @@ test("compara disciplinas de fila na ferramentaria (exercicio 6)", () => {
   pertoDe(semInterrupcao.classes[2].W, 1.1, 1e-9);
 
   // c) prioridade com interrupcao
-  const comInterrupcao = calcularPrioridadesComInterrupcao([2, 4, 2], 10);
+  const comInterrupcao = calcularPrioridadesComInterrupcao([2, 4, 2], 10, 1);
   pertoDe(comInterrupcao.classes[0].W, 0.125, 1e-9);
   pertoDe(comInterrupcao.classes[1].W, 0.3125, 1e-9);
   pertoDe(comInterrupcao.classes[2].W, 1.25, 1e-9);
@@ -356,18 +356,16 @@ test("calcula prioridades na sala de emergencia com novas porcentagens (exercici
   pertoDe(semS2.classes[2].Wq, 0.045, 1e-3);
 
   // Com interrupcao, s=1
-  const comS1 = calcularPrioridadesComInterrupcao(lambdas, 3);
+  const comS1 = calcularPrioridadesComInterrupcao(lambdas, 3, 1);
   pertoDe(comS1.classes[0].Wq, 0.011, 1e-3);
   pertoDe(comS1.classes[1].Wq, 0.080, 1e-3);
   pertoDe(comS1.classes[2].Wq, 0.867, 1e-3);
 
   // Com interrupcao, s=2
   const comS2 = calcularPrioridadesComInterrupcao(lambdas, 3, 2);
-  pertoDe(comS2.classes[0].Wq, 0.00009, 5e-6); // gabarito 0,00009
-  pertoDe(comS2.classes[1].Wq, 0.00289, 5e-6); // gabarito 0,00289
-  // Wq3 correto = 0,0547786. O gabarito traz 0,05493, com pequeno erro de
-  // arredondamento (o proprio Wq2 do gabarito implica Wq3 = 0,05478).
-  pertoDe(comS2.classes[2].Wq, 0.0547786, 1e-6);
+  pertoDe(comS2.classes[0].Wq, 0.0056497175, 1e-10);
+  pertoDe(comS2.classes[1].Wq, 0.0364663585, 1e-10);
+  pertoDe(comS2.classes[2].Wq, 0.2121212121, 1e-10);
 });
 
 test("calcula o exemplo 1 do slide em M/M/1/K", () => {
@@ -678,7 +676,7 @@ test("Otimizacao 2 - Ex 7: sala de emergencia com 1 e 2 medicos (M/M/s)", () => 
   pertoDe(s1.probWMaiorQueT, 0.3679, 1e-4);   // i) P(W>1h)
 
   // --- 2 medicos (M/M/2) ---
-  const s2 = calcularMMSValores(2, 3, 2);
+  const s2 = calcularMMSValores(2, 3, 2, 1);
   pertoDe(s2.rho, 1 / 3, 1e-9);   // a
   pertoDe(s2.L, 0.75, 1e-9);      // b
   pertoDe(s2.Lq, 1 / 12, 1e-9);   // c
@@ -699,7 +697,7 @@ test("Otimizacao 2 - Ex 9: SAC, numero de atendentes para Wq<=2min", () => {
   pertoDe(s1.Wq, 5 / 14, 1e-9);  // ≈0,357h = 21,4min > 5min
   assert.ok(s1.Wq > 5 / 60);
 
-  const s2 = calcularMMSValores(5, 7, 2);
+  const s2 = calcularMMSValores(5, 7, 2, 1);
   assert.ok(s2.Wq <= 2 / 60);    // ≈1,25min ≤ 2min ⇒ resposta: 2 atendentes
   pertoDe(s2.Wq * 60, 1.2531, 1e-3);
 });
@@ -755,7 +753,7 @@ test("Otimizacao 2 - Ex 14: aeroporto, criterios da FAA (M/M/1 e M/M/s)", () => 
   pertoDe(1 - b.probWqMaiorQueT, 0.9384, 5e-4);    // crit 3
 
   // c) duas pistas: λ=25/h, μ=20/h, s=2 (M/M/s)
-  const c = calcularMMSValores(25, 20, 2);
+  const c = calcularMMSValores(25, 20, 2, 0.5);
   pertoDe(c.Lq, 0.8013, 5e-4);                                          // crit 1
   const Pwait = probEspera(25, 20, 2, c.P0);
   pertoDe(1 - Pwait * Math.exp(-(2 * 20 - 25) * 0.5), 0.9997, 5e-4);    // crit 3
@@ -767,19 +765,19 @@ test("Otimizacao 2 - Ex 14: aeroporto, criterios da FAA (M/M/1 e M/M/s)", () => 
 test("Otimizacao 2 - Ex 15: banco com 4 caixas, diretrizes de atendimento (M/M/s)", () => {
   // μ=1/min. Crit: (1) Lq; (2) P(n_fila<=5)≥95% ⇔ P(N<=s+5); (3) P(Wq<=5min)≥95%.
   // a) λ=2/min, s=4
-  const a = calcularMMSValores(2, 1, 4);
+  const a = calcularMMSValores(2, 1, 4, 5);
   pertoDe(a.Lq, 0.1739, 5e-4);                                          // crit 1
   pertoDe(probSistemaAte(2, 1, 4, a.P0, 9), 0.997, 5e-4);              // crit 2: P(N<=9)
   pertoDe(1 - probEspera(2, 1, 4, a.P0) * Math.exp(-(4 - 2) * 5), 0.9999, 5e-4); // crit 3
 
   // b) λ=3/min, s=4
-  const b = calcularMMSValores(3, 1, 4);
+  const b = calcularMMSValores(3, 1, 4, 5);
   pertoDe(b.Lq, 1.5283, 5e-4);                                          // crit 1
   pertoDe(probSistemaAte(3, 1, 4, b.P0, 9), 0.909, 1e-3);              // crit 2
   pertoDe(1 - probEspera(3, 1, 4, b.P0) * Math.exp(-(4 - 3) * 5), 0.9966, 5e-4); // crit 3
 
   // c) λ=3/min: 5 caixas atendem completamente as diretrizes.
-  const c = calcularMMSValores(3, 1, 5);
+  const c = calcularMMSValores(3, 1, 5, 5);
   assert.ok(c.Lq < 1);                                                  // crit 1
   assert.ok(probSistemaAte(3, 1, 5, c.P0, 10) >= 0.95);               // crit 2
   assert.ok(1 - probEspera(3, 1, 5, c.P0) * Math.exp(-(5 - 3) * 5) >= 0.95); // crit 3
