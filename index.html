@@ -66,17 +66,26 @@
 
   <div class="form-grid">
     <div class="field">
-      <label>λ (taxa de chegada):</label>
+      <label class="label-with-help">
+        λ (taxa de chegada):
+        <span class="tooltip" tabindex="0" data-tooltip="Taxa média de chegada de clientes ao sistema por unidade de tempo.">?</span>
+      </label>
       <input type="number" id="mms_lambda" step="0.01">
     </div>
 
     <div class="field">
-      <label>μ (taxa de serviço):</label>
+      <label class="label-with-help">
+        μ (taxa de serviço):
+        <span class="tooltip" tabindex="0" data-tooltip="Taxa média de atendimento de cada servidor individualmente.">?</span>
+      </label>
       <input type="number" id="mms_mu" step="0.01">
     </div>
 
     <div class="field">
-      <label>s (nº de servidores, maior que 1):</label>
+      <label class="label-with-help">
+        s (nº de servidores, maior que 1):
+        <span class="tooltip" tabindex="0" data-tooltip="Quantidade de servidores em paralelo. Use 2 ou mais nesta aba.">?</span>
+      </label>
       <input type="number" id="mms_s" min="2" step="1">
     </div>
   </div>
@@ -415,13 +424,13 @@ function calcularMMS() {
     return;
   }
 
-  resultado.innerText = `
-ρ = ${valores.rho.toFixed(2)}
-P0 = ${valores.P0.toFixed(2)}
-Lq = ${valores.Lq.toFixed(2)}
-Wq = ${valores.Wq.toFixed(2)}
-W = ${valores.W.toFixed(2)}
-L = ${valores.L.toFixed(2)}
+  resultado.innerHTML = `
+    ${criarLinhaResultado("ρ", formatar(valores.rho), "Utilização média de cada servidor. Indica a fração do tempo em que um servidor fica ocupado.")}
+    ${criarLinhaResultado("P0", formatarProbabilidade(valores.P0), "Probabilidade de não haver clientes no sistema.")}
+    ${criarLinhaResultado("Lq", formatar(valores.Lq), "Número médio de clientes aguardando na fila antes do atendimento começar.")}
+    ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo fila e atendimento.")}
+    ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio que um cliente espera na fila antes de começar o atendimento.")}
+    ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio que um cliente permanece no sistema, incluindo espera e atendimento.")}
   `;
 }
 
