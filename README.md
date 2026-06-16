@@ -22,6 +22,7 @@ Os cálculos são feitos diretamente no navegador, sem necessidade de servidor o
 - Cálculo do fator de utilização do sistema.
 - Cálculo de métricas como `L`, `Lq`, `W` e `Wq`.
 - Cálculo de `P0`, `P(ocupado)`, `P(W > t)` e `P(Wq > t)` no modelo `M/M/1`.
+- Cálculo de `P(W > t)` e `P(Wq > t)` no modelo `M/M/s`.
 - Cálculo da taxa de chegada necessária para atingir um `W` alvo no modelo `M/M/1`.
 - Cálculo do modelo `M/G/1` pela fórmula de Pollaczek-Khintchine, incluindo casos com atendimento exponencial ou constante.
 - Cálculo de filas com prioridades sem ou com interrupção, exibindo métricas globais e resultados por classe.
@@ -112,4 +113,4 @@ Os testes usam o runner nativo do Node.js e não precisam de bibliotecas externa
 
 ## Observações
 
-O modelo `M/M/s` considera uma implementação simplificada das fórmulas de filas com múltiplos servidores. Para resultados válidos, a taxa de utilização deve ser menor que 1. O modelo `M/G/1` também exige `ρ < 1`. No modelo de prioridades, a classe 1 tem a maior prioridade; sem interrupção mantém o atendimento atual e com interrupção usa prioridade preemptiva com retomada em M/M/1. Nos modelos com capacidade limitada, `K` representa a capacidade total do sistema, incluindo clientes em atendimento e clientes na fila. Nos modelos com população finita, `N` representa a população total possível e a taxa efetiva é calculada por `λ(N - L)`.
+O modelo `M/M/s` considera uma implementação simplificada das fórmulas de filas com múltiplos servidores. Para resultados válidos, a taxa de utilização deve ser menor que 1. O modelo `M/G/1` também exige `ρ < 1`. No modelo de prioridades, a classe 1 tem a maior prioridade; sem interrupção mantém o atendimento atual e com interrupção usa prioridade preemptiva com retomada considerando `s` servidores. Nos modelos com capacidade limitada, `K` representa a capacidade total do sistema, incluindo clientes em atendimento e clientes na fila. Nos modelos com população finita, `N` representa a população total possível e a taxa efetiva é calculada por `λ(N - L)`.

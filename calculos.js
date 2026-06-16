@@ -52,9 +52,10 @@
     };
   }
 
-  function calcularMMSValores(lambda, mu, s) {
+  function calcularMMSValores(lambda, mu, s, tempo) {
     validarNumero("λ", lambda, false);
     validarNumero("μ", mu, false);
+    validarNumero("t", tempo, true);
 
     if (!Number.isInteger(s) || s <= 0) {
       throw new Error("s deve ser um número inteiro maior que zero.");
@@ -77,6 +78,14 @@
     const Wq = Lq / lambda;
     const W = Wq + (1 / mu);
     const L = lambda * W;
+    const probEsperar = parte2 * P0;
+    const taxaEspera = (s * mu) - lambda;
+    const probWqMaiorQueT = probEsperar * Math.exp(-taxaEspera * tempo);
+    const probWMaiorQueT = Math.abs(taxaEspera - mu) < 1e-12
+      ? ((1 - probEsperar) * Math.exp(-mu * tempo)) + (probEsperar * Math.exp(-mu * tempo) * (1 + mu * tempo))
+      : ((1 - probEsperar) * Math.exp(-mu * tempo)) + (
+        probEsperar * ((mu * Math.exp(-taxaEspera * tempo) - taxaEspera * Math.exp(-mu * tempo)) / (mu - taxaEspera))
+      );
 
     return {
       rho,
@@ -84,7 +93,10 @@
       Lq,
       Wq,
       W,
-      L
+      L,
+      probEsperar,
+      probWMaiorQueT,
+      probWqMaiorQueT
     };
   }
 
@@ -174,7 +186,7 @@
     };
   }
 
-  function calcularPrioridadesComInterrupcao(lambdas, mu) {
+  function calcularPrioridadesComInterrupcao(lambdas, mu, s) {
     if (!Array.isArray(lambdas) || lambdas.length < 2) {
       throw new Error("lambdas deve ser um array com pelo menos 2 taxas de chegada.");
     }
@@ -184,25 +196,32 @@
     });
     validarNumero("μ", mu, false);
 
+    if (!Number.isInteger(s) || s < 1) {
+      throw new Error("s deve ser um número inteiro maior ou igual a 1.");
+    }
+
     const lambdaTotal = lambdas.reduce((soma, lambda) => soma + lambda, 0);
-    const rho = lambdaTotal / mu;
+    const rho = lambdaTotal / (s * mu);
 
     if (rho >= 1) {
       throw new Error("Sistema instável (ρ >= 1)");
     }
 
-    const P0 = 1 - rho;
+    const r = lambdaTotal / mu;
+    let somaMMs = 0;
+
+    for (let n = 0; n < s; n++) {
+      somaMMs += Math.pow(r, n) / fatorial(n);
+    }
+
+    const P0 = 1 / (somaMMs + (Math.pow(r, s) / (fatorial(s) * (1 - rho))));
     let lambdaAcumulado = 0;
 
     const classes = lambdas.map((lambdaClasse, indice) => {
-      const sigmaAnterior = lambdaAcumulado / mu;
+      const sigmaAnterior = lambdaAcumulado / (s * mu);
       lambdaAcumulado += lambdaClasse;
-      const sigmaAtual = lambdaAcumulado / mu;
-      const W = (
-        1 / (mu * (1 - sigmaAnterior))
-      ) + (
-        lambdaAcumulado / (mu * mu * (1 - sigmaAnterior) * (1 - sigmaAtual))
-      );
+      const sigmaAtual = lambdaAcumulado / (s * mu);
+      const W = (1 / mu) / ((1 - sigmaAnterior) * (1 - sigmaAtual));
       const Wq = W - (1 / mu);
       const L = lambdaClasse * W;
       const Lq = lambdaClasse * Wq;
@@ -334,30 +353,31 @@
     let somaFatores = 0;
 
     for (let n = 0; n <= N; n++) {
-      const fator = combinacao(N, n) * Math.pow(razao, n);
+      const fator = (fatorial(N) / fatorial(N - n)) * Math.pow(razao, n);
       fatores.push(fator);
       somaFatores += fator;
     }
 
     const P0 = 1 / somaFatores;
     const probabilidades = [];
-    let L = 0;
 
     for (let n = 0; n <= N; n++) {
       const Pn = fatores[n] * P0;
       probabilidades.push(Pn);
-      L += n * Pn;
     }
 
-    const Lq = L - (1 - P0);
+    const rho = (N * lambda) / mu;
+    const probOcupado = 1 - P0;
+    const L = N - (mu / lambda) * probOcupado;
+    const Lq = N - ((lambda + mu) / lambda) * probOcupado;
     const clientesFora = N - L;
     const lambdaEfetiva = lambda * clientesFora;
     const W = L / lambdaEfetiva;
     const Wq = Lq / lambdaEfetiva;
     const probOcioso = P0;
-    const probOcupado = 1 - P0;
 
     return {
+      rho,
       razao,
       P0,
       probabilidades,

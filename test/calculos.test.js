@@ -75,7 +75,7 @@ test("calcula o exemplo dos motores usando taxas por dia", () => {
 });
 
 test("calcula M/M/s para dois servidores", () => {
-  const resultado = calcularMMSValores(3, 4, 2);
+  const resultado = calcularMMSValores(3, 4, 2, 1);
 
   pertoDe(resultado.rho, 0.375);
   pertoDe(resultado.P0, 0.45454545454545453);
@@ -83,6 +83,9 @@ test("calcula M/M/s para dois servidores", () => {
   pertoDe(resultado.Wq, 0.04090909090909091);
   pertoDe(resultado.W, 0.2909090909090909);
   pertoDe(resultado.L, 0.8727272727272727);
+  pertoDe(resultado.probEsperar, 0.20454545454545453);
+  pertoDe(resultado.probWMaiorQueT, 0.02778829588935585);
+  pertoDe(resultado.probWqMaiorQueT, 0.0013782164316311183);
 });
 
 test("calcula M/G/1 equivalente a M/M/1 no exemplo do lava-rapido", () => {
@@ -211,7 +214,7 @@ test("calcula prioridades sem interrupcao no exemplo da delegacia", () => {
 });
 
 test("calcula prioridades com interrupcao no hospital com um servidor", () => {
-  const resultado = calcularPrioridadesComInterrupcao([0.2, 0.6, 1.2], 3);
+  const resultado = calcularPrioridadesComInterrupcao([0.2, 0.6, 1.2], 3, 1);
 
   pertoDe(resultado.rho, 0.6666666666666666);
   pertoDe(resultado.P0, 0.33333333333333337);
@@ -230,6 +233,26 @@ test("calcula prioridades com interrupcao no hospital com um servidor", () => {
   pertoDe(resultado.classes[2].Lq, 1.236363636363636);
 });
 
+test("calcula prioridades com interrupcao usando multiplos servidores", () => {
+  const resultado = calcularPrioridadesComInterrupcao([0.2, 0.6, 1.2], 3, 2);
+
+  pertoDe(resultado.rho, 0.3333333333333333);
+  pertoDe(resultado.P0, 0.5);
+  pertoDe(resultado.lambdaTotal, 2);
+  pertoDe(resultado.classes[0].W, 0.3448275862068966);
+  pertoDe(resultado.classes[0].Wq, 0.01149425287356326);
+  pertoDe(resultado.classes[0].L, 0.06896551724137932);
+  pertoDe(resultado.classes[0].Lq, 0.002298850574712652);
+  pertoDe(resultado.classes[1].W, 0.39787798408488056);
+  pertoDe(resultado.classes[1].Wq, 0.06454465075154725);
+  pertoDe(resultado.classes[1].L, 0.23872679045092832);
+  pertoDe(resultado.classes[1].Lq, 0.03872679045092835);
+  pertoDe(resultado.classes[2].W, 0.5769230769230769);
+  pertoDe(resultado.classes[2].Wq, 0.24358974358974356);
+  pertoDe(resultado.classes[2].L, 0.6923076923076922);
+  pertoDe(resultado.classes[2].Lq, 0.29230769230769227);
+});
+
 test("bloqueia entradas invalidas em prioridades sem interrupcao", () => {
   assert.throws(() => calcularPrioridadesSemInterrupcao([1], 3, 1), /pelo menos 2/);
   assert.throws(() => calcularPrioridadesSemInterrupcao([1, 2], 3, 1.5), /s/);
@@ -237,10 +260,10 @@ test("bloqueia entradas invalidas em prioridades sem interrupcao", () => {
 });
 
 test("bloqueia entradas invalidas em prioridades com interrupcao", () => {
-  assert.throws(() => calcularPrioridadesComInterrupcao([1], 3), /pelo menos 2/);
-  assert.throws(() => calcularPrioridadesComInterrupcao([1, 2], 0), /μ/);
+  assert.throws(() => calcularPrioridadesComInterrupcao([1], 3, 1), /pelo menos 2/);
+  assert.throws(() => calcularPrioridadesComInterrupcao([1, 2], 0, 1), /μ/);
   assert.throws(() => calcularPrioridadesComInterrupcao([1, 2], 3, 1.5), /s/);
-  assert.throws(() => calcularPrioridadesComInterrupcao([2, 2], 3), /Sistema instável/);
+  assert.throws(() => calcularPrioridadesComInterrupcao([2, 2], 3, 1), /Sistema instável/);
 });
 
 test("calcula prioridades sem interrupcao na Southeast Airlines (exercicio 4)", () => {
@@ -437,27 +460,61 @@ test("calcula o exemplo 2 do slide em M/M/s/K", () => {
 test("calcula o exemplo 1 do slide em M/M/1 com populacao finita", () => {
   const resultado = calcularMM1PopulacaoFinitaValores(0.01, 0.125, 10);
 
-  pertoDe(resultado.P0, 0.4631934881, 1e-10);
-  pertoDe(resultado.probOcioso, 0.4631934881, 1e-10);
-  pertoDe(resultado.probOcupado, 0.5368065119, 1e-10);
-  pertoDe(resultado.L, 0.7407407407, 1e-10);
-  pertoDe(resultado.Lq, 0.2039342288, 1e-10);
-  pertoDe(resultado.lambdaEfetiva, 0.0925925926, 1e-10);
-  pertoDe(resultado.W, 8);
-  pertoDe(resultado.Wq, 2.2024896713, 1e-10);
-  pertoDe(resultado.clientesFora, 9.2592592593, 1e-10);
+  pertoDe(resultado.rho, 0.8, 1e-12);
+  pertoDe(resultado.P0, 0.3219514221, 1e-10);
+  pertoDe(resultado.probOcioso, 0.3219514221, 1e-10);
+  pertoDe(resultado.probOcupado, 0.6780485779, 1e-10);
+  pertoDe(resultado.L, 1.5243927765, 1e-10);
+  pertoDe(resultado.Lq, 0.8463441986, 1e-10);
+  pertoDe(resultado.lambdaEfetiva, 0.0847560722, 1e-10);
+  pertoDe(resultado.W, 17.9856467657, 1e-10);
+  pertoDe(resultado.Wq, 9.9856467657, 1e-10);
+  pertoDe(resultado.clientesFora, 8.4756072235, 1e-10);
 });
 
 test("calcula o exemplo 2 por formulas em M/M/1 com populacao finita", () => {
-  const resultado = calcularMM1PopulacaoFinitaValores(1 / 30, 1 / 3, 5);
+  const lambda = 1 / 30;
+  const mu = 1 / 3;
+  const N = 5;
+  const resultado = calcularMM1PopulacaoFinitaValores(lambda, mu, N);
 
-  pertoDe(resultado.P0, 0.6209213231, 1e-10);
-  pertoDe(resultado.L, 0.4545454545, 1e-10);
-  pertoDe(resultado.Lq, 0.0754667776, 1e-10);
-  pertoDe(resultado.lambdaEfetiva, 0.1515151515, 1e-10);
-  pertoDe(resultado.W, 3, 1e-10);
-  pertoDe(resultado.Wq, 0.4980807322, 1e-10);
-  pertoDe(resultado.clientesFora, 4.5454545455, 1e-10);
+  pertoDe(resultado.P0, 0.5639521769, 1e-10);
+  pertoDe(resultado.L, 0.6395217686, 1e-10);
+  pertoDe(resultado.Lq, 0.2034739454, 1e-10);
+  pertoDe(resultado.lambdaEfetiva, 0.1453492744, 1e-10);
+  pertoDe(resultado.W, 4.3998965339, 1e-10);
+  pertoDe(resultado.Wq, 1.3998965339, 1e-10);
+  pertoDe(resultado.clientesFora, 4.3604782314, 1e-10);
+  pertoDe(resultado.L, N - (mu / lambda) * (1 - resultado.P0), 1e-12);
+  pertoDe(resultado.Lq, N - ((lambda + mu) / lambda) * (1 - resultado.P0), 1e-12);
+});
+
+test("calcula M/M/1/N com lambda 0.1, mu 2 e N 5 como no slide", () => {
+  const resultado = calcularMM1PopulacaoFinitaValores(0.1, 2, 5);
+
+  pertoDe(resultado.probabilidades[0], 0.7643579871, 1e-10);
+  pertoDe(resultado.probabilidades[1], 0.1910894968, 1e-10);
+  pertoDe(resultado.probabilidades[2], 0.0382178994, 1e-10);
+  pertoDe(resultado.probabilidades[3], 0.0057326849, 1e-10);
+  pertoDe(resultado.probabilidades[4], 0.0005732685, 1e-10);
+  pertoDe(resultado.probabilidades[5], 0.0000286634, 1e-10);
+  pertoDe(resultado.L, 0.2871597413, 1e-10);
+  pertoDe(resultado.lambdaEfetiva, 0.4712840259, 1e-10);
+  pertoDe(resultado.W, 0.6093135466, 1e-10);
+  pertoDe(resultado.Lq, 0.0515177283, 1e-10);
+  pertoDe(resultado.Wq, 0.1093135466, 1e-10);
+});
+
+test("mantem M/M/1/N consistente com M/M/s/N quando s vale 1", () => {
+  const resultadoMM1N = calcularMM1PopulacaoFinitaValores(0.01, 1 / 8, 10);
+  const resultadoMMSN = calcularMMSPopulacaoFinitaValores(0.01, 1 / 8, 1, 10);
+
+  pertoDe(resultadoMM1N.P0, resultadoMMSN.P0, 1e-12);
+  pertoDe(resultadoMM1N.L, resultadoMMSN.L, 1e-12);
+  pertoDe(resultadoMM1N.Lq, resultadoMMSN.Lq, 1e-12);
+  pertoDe(resultadoMM1N.lambdaEfetiva, resultadoMMSN.lambdaEfetiva, 1e-12);
+  pertoDe(resultadoMM1N.W, resultadoMMSN.W, 1e-12);
+  pertoDe(resultadoMM1N.Wq, resultadoMMSN.Wq, 1e-12);
 });
 
 test("calcula o exemplo 1 do slide em M/M/s com populacao finita", () => {
@@ -505,7 +562,7 @@ test("bloqueia M/M/1 instavel", () => {
 
 test("bloqueia M/M/s instavel", () => {
   assert.throws(
-    () => calcularMMSValores(8, 4, 2),
+    () => calcularMMSValores(8, 4, 2, 1),
     /Sistema instável/
   );
 });
@@ -515,7 +572,8 @@ test("bloqueia entradas invalidas", () => {
   assert.throws(() => calcularMM1Valores(3, 0, 1, 1.25), /μ/);
   assert.throws(() => calcularMM1Valores(3, 4, -1, 1.25), /t/);
   assert.throws(() => calcularMM1Valores(3, 4, 1, 0), /W alvo/);
-  assert.throws(() => calcularMMSValores(3, 4, 1.5), /s/);
+  assert.throws(() => calcularMMSValores(3, 4, 1.5, 1), /s/);
+  assert.throws(() => calcularMMSValores(3, 4, 2, -1), /t/);
   assert.throws(() => calcularMM1KValores(0, 4, 2), /λ/);
   assert.throws(() => calcularMM1KValores(3, 0, 2), /μ/);
   assert.throws(() => calcularMM1KValores(3, 4, 0), /K/);

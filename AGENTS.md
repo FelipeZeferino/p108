@@ -35,7 +35,7 @@ O arquivo `calculos.js` concentra a regra de negócio. As funções devem ser pu
 Funções atuais:
 
 - `calcularMM1Valores(lambda, mu, tempo, wAlvo)`
-- `calcularMMSValores(lambda, mu, s)`
+- `calcularMMSValores(lambda, mu, s, tempo)`
 - `calcularMM1KValores(lambda, mu, K)`
 - `calcularMMSKValores(lambda, mu, s, K)`
 - `calcularMM1PopulacaoFinitaValores(lambda, mu, N)`

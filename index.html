@@ -88,6 +88,14 @@
       </label>
       <input type="number" id="mms_s" min="2" step="1">
     </div>
+
+    <div class="field">
+      <label class="label-with-help">
+        t (tempo para calcular P(W &gt; t) e P(Wq &gt; t)):
+        <span class="tooltip" tabindex="0" data-tooltip="Use este campo quando o exercício perguntar a probabilidade de o tempo ser maior que algum valor. Use a mesma unidade de λ e μ.">?</span>
+      </label>
+      <input type="number" id="mms_tempo" step="0.01" value="1">
+    </div>
   </div>
 
   <div class="actions">
@@ -414,11 +422,12 @@ function calcularMMS() {
   const lambda = parseFloat(document.getElementById('mms_lambda').value);
   const mu = parseFloat(document.getElementById('mms_mu').value);
   const s = Number(document.getElementById('mms_s').value);
+  const tempo = parseFloat(document.getElementById('mms_tempo').value);
   const resultado = document.getElementById('mms_result');
 
   let valores;
   try {
-    valores = CalculosFilas.calcularMMSValores(lambda, mu, s);
+    valores = CalculosFilas.calcularMMSValores(lambda, mu, s, tempo);
   } catch (erro) {
     resultado.innerText = erro.message;
     return;
@@ -431,6 +440,8 @@ function calcularMMS() {
     ${criarLinhaResultado("L", formatar(valores.L), "Número médio de clientes no sistema, incluindo fila e atendimento.")}
     ${criarLinhaResultado("Wq", formatar(valores.Wq), "Tempo médio que um cliente espera na fila antes de começar o atendimento.")}
     ${criarLinhaResultado("W", formatar(valores.W), "Tempo médio que um cliente permanece no sistema, incluindo espera e atendimento.")}
+    ${criarLinhaResultado(`P(W > ${formatar(tempo)})`, formatarProbabilidade(valores.probWMaiorQueT), "Probabilidade de o tempo total no sistema ser maior que o tempo t informado.")}
+    ${criarLinhaResultado(`P(Wq > ${formatar(tempo)})`, formatarProbabilidade(valores.probWqMaiorQueT), "Probabilidade de o tempo de espera na fila ser maior que o tempo t informado.")}
   `;
 }
 
@@ -480,11 +491,8 @@ function atualizarCamposPrioridades() {
 }
 
 function atualizarInterfacePrioridades() {
-  const regime = document.getElementById('prioridades_regime').value;
-  const campoServidores = document.getElementById('prioridades_servidores_campo');
   const resultado = document.getElementById('prioridades_result');
 
-  campoServidores.style.display = regime === "sem" ? "block" : "none";
   resultado.innerText = "";
 }
 
@@ -506,7 +514,7 @@ function calcularPrioridades() {
     }
 
     const valores = regime === "com"
-      ? CalculosFilas.calcularPrioridadesComInterrupcao(lambdas, mu)
+      ? CalculosFilas.calcularPrioridadesComInterrupcao(lambdas, mu, s)
       : CalculosFilas.calcularPrioridadesSemInterrupcao(lambdas, mu, s);
     const regimeTexto = regime === "com" ? "Com interrupção" : "Sem interrupção";
     const classesHtml = valores.classes.map(classe => `
