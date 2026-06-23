@@ -394,19 +394,26 @@
       <div class="glossario-card">
         <div class="glossario-termo">λ <span>lambda — taxa de chegada</span></div>
         <p>Quantos clientes chegam, em média, por unidade de tempo.</p>
-        <p><strong>Quando usar:</strong> sempre que o enunciado disser "chegam X por hora/minuto".</p>
-        <p><strong>Exemplo:</strong> chegam 3 clientes por hora → λ = 3.</p>
+        <p><strong>Quando usar:</strong> quando o enunciado dá a taxa ("chegam X por hora"). Se ele der o <em>tempo médio entre chegadas</em>, inverta: λ = 1 / esse tempo.</p>
+        <p><strong>Exemplo:</strong> 1 cliente a cada 5 min → λ = 1/5 = 0,2 por minuto.</p>
+        <span class="glossario-formula">λ = 1 / (tempo médio entre chegadas)</span>
       </div>
       <div class="glossario-card">
         <div class="glossario-termo">μ <span>mu — taxa de serviço</span></div>
-        <p>Quantos clientes <em>um</em> servidor consegue atender por unidade de tempo. O tempo médio de cada atendimento é 1/μ.</p>
-        <p><strong>Quando usar:</strong> quando souber a velocidade de atendimento ou a duração média.</p>
-        <p><strong>Exemplo:</strong> cada atendimento leva 15 min → μ = 4 por hora.</p>
+        <p>Quantos clientes <em>um</em> servidor atende por unidade de tempo. É o <strong>inverso</strong> do tempo médio de atendimento.</p>
+        <p><strong>Quando usar:</strong> quase sempre o enunciado dá o <em>tempo</em> de atendimento — então calcule μ = 1 / tempo. Só não inverta se já vier como taxa ("atende X por hora").</p>
+        <p><strong>Exemplo:</strong> atendimento de 2 min → μ = 1/2 = 0,5 por minuto (ou 30 por hora).</p>
+        <span class="glossario-formula">μ = 1 / (tempo médio de atendimento)</span>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">Taxa × tempo <span>cuidado com a unidade</span></div>
+        <p>Taxa é o inverso da duração. λ e μ precisam estar na <strong>mesma unidade</strong> (tudo por hora <em>ou</em> tudo por minuto), e os tempos de resposta (W, Wq) saem nessa mesma unidade.</p>
+        <p><strong>Pegadinha:</strong> λ em "por hora" e serviço em "minutos" → converta um antes de calcular. Ex.: serviço de 2 min vira μ = 30/h para casar com λ = 5/h.</p>
       </div>
       <div class="glossario-card">
         <div class="glossario-termo">t <span>tempo alvo</span></div>
         <p>Um tempo de referência para calcular probabilidades do tipo P(W &gt; t) ou P(Wq &gt; t).</p>
-        <p><strong>Quando usar:</strong> quando o exercício pergunta "qual a chance de esperar mais que t?".</p>
+        <p><strong>Quando usar:</strong> quando o exercício pergunta "qual a chance de esperar mais que t?". Use a mesma unidade de λ e μ.</p>
         <p><strong>Exemplo:</strong> "chance de esperar mais de 10 min" com μ por hora → t = 1/6.</p>
       </div>
     </div>
