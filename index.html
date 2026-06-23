@@ -19,6 +19,7 @@
   <div class="tab" onclick="openTab('mmsn')">M/M/s &gt; 1/N</div>
   <div class="tab" onclick="openTab('mg1')">M/G/1</div>
   <div class="tab" onclick="openTab('prioridades')">Prioridades</div>
+  <div class="tab" onclick="openTab('glossario')">Glossário</div>
 </div>
 
 <!-- M/M/1 -->
@@ -355,6 +356,275 @@
   <div class="result" id="mmsn_result"></div>
 </div>
 
+<!-- Glossário -->
+<div id="glossario" class="content">
+  <h2>Glossário</h2>
+  <p class="glossario-intro">
+    Referência rápida dos termos usados na calculadora. Cada item traz o significado, quando usar e um
+    exemplo numérico que você pode conferir nas outras abas. Use a mesma unidade de tempo para λ e μ
+    (tudo por hora, ou tudo por minuto).
+  </p>
+
+  <div class="glossario-kendall">
+    <h3>Notação de Kendall — A/B/c/K/N</h3>
+    <p>
+      O nome de cada modelo segue o padrão <strong>A/B/c</strong> (e, quando há limite, <strong>/K</strong> ou
+      <strong>/N</strong>). <strong>A</strong> é a distribuição das chegadas, <strong>B</strong> a do atendimento e
+      <strong>c</strong> o número de servidores. O <strong>M</strong> vem de <em>markoviano</em> (tempos
+      exponenciais, "sem memória"); o <strong>G</strong> é uma distribuição <em>geral</em> de atendimento.
+      Use o menu abaixo para ver os termos comuns a todas as filas ou os específicos de cada modelo.
+    </p>
+  </div>
+
+  <div class="glossario-subnav">
+    <button type="button" class="glossario-chip active" onclick="openGlossarioSecao('fund', this)">Fundamentos</button>
+    <button type="button" class="glossario-chip" onclick="openGlossarioSecao('mm1', this)">M/M/1</button>
+    <button type="button" class="glossario-chip" onclick="openGlossarioSecao('mms', this)">M/M/s</button>
+    <button type="button" class="glossario-chip" onclick="openGlossarioSecao('k', this)">Capacidade limitada /K</button>
+    <button type="button" class="glossario-chip" onclick="openGlossarioSecao('n', this)">População finita /N</button>
+    <button type="button" class="glossario-chip" onclick="openGlossarioSecao('mg1', this)">M/G/1</button>
+    <button type="button" class="glossario-chip" onclick="openGlossarioSecao('prio', this)">Prioridades</button>
+  </div>
+
+  <div class="glossario-secao active" id="gloss-fund">
+    <h3>Fundamentos — comuns a todas as filas</h3>
+    <p>Os símbolos de entrada e os indicadores abaixo aparecem em todos os modelos. As seções por tipo de fila trazem só o que é exclusivo de cada uma.</p>
+    <p><strong>Símbolos de entrada</strong></p>
+    <div class="glossario-grid">
+      <div class="glossario-card">
+        <div class="glossario-termo">λ <span>lambda — taxa de chegada</span></div>
+        <p>Quantos clientes chegam, em média, por unidade de tempo.</p>
+        <p><strong>Quando usar:</strong> sempre que o enunciado disser "chegam X por hora/minuto".</p>
+        <p><strong>Exemplo:</strong> chegam 3 clientes por hora → λ = 3.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">μ <span>mu — taxa de serviço</span></div>
+        <p>Quantos clientes <em>um</em> servidor consegue atender por unidade de tempo. O tempo médio de cada atendimento é 1/μ.</p>
+        <p><strong>Quando usar:</strong> quando souber a velocidade de atendimento ou a duração média.</p>
+        <p><strong>Exemplo:</strong> cada atendimento leva 15 min → μ = 4 por hora.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">t <span>tempo alvo</span></div>
+        <p>Um tempo de referência para calcular probabilidades do tipo P(W &gt; t) ou P(Wq &gt; t).</p>
+        <p><strong>Quando usar:</strong> quando o exercício pergunta "qual a chance de esperar mais que t?".</p>
+        <p><strong>Exemplo:</strong> "chance de esperar mais de 10 min" com μ por hora → t = 1/6.</p>
+      </div>
+    </div>
+    <p><strong>Indicadores de saída</strong></p>
+    <div class="glossario-grid">
+      <div class="glossario-card">
+        <div class="glossario-termo">ρ <span>rho — utilização</span></div>
+        <p>Fração do tempo em que o servidor fica ocupado. Acima de 1 o sistema é instável (a fila cresce sem parar).</p>
+        <p><strong>Exemplo:</strong> λ = 3, μ = 4 → ρ = λ/μ = 0,75 (75% ocupado).</p>
+        <span class="glossario-formula">ρ = λ / μ  ·  ρ = λ / (s·μ)</span>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">P0 <span>sistema vazio</span></div>
+        <p>Probabilidade de não haver ninguém no sistema. Em M/M/1 é também a chance de chegar e não esperar.</p>
+        <p><strong>Exemplo:</strong> λ = 3, μ = 4 → P0 = 1 − ρ = 0,25 (25%).</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">Pn <span>n clientes no sistema</span></div>
+        <p>Probabilidade de existirem exatamente n clientes no sistema. A lista P0, P1, P2... é a distribuição de estados.</p>
+        <p><strong>Exemplo:</strong> P2 = chance de haver 2 clientes (1 atendido + 1 na fila).</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">L <span>clientes no sistema</span></div>
+        <p>Número médio de clientes no sistema, contando os que esperam <em>e</em> os que estão em atendimento.</p>
+        <p><strong>Exemplo:</strong> λ = 3, μ = 4 → L = λ/(μ−λ) = 3 clientes.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">Lq <span>clientes na fila</span></div>
+        <p>Número médio de clientes apenas <em>esperando</em> na fila, sem contar quem já está sendo atendido.</p>
+        <p><strong>Exemplo:</strong> λ = 3, μ = 4 → Lq = λ²/[μ(μ−λ)] = 2,25 clientes.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">W <span>tempo no sistema</span></div>
+        <p>Tempo médio total que um cliente passa no sistema: espera na fila + atendimento.</p>
+        <p><strong>Exemplo:</strong> λ = 3, μ = 4 → W = 1/(μ−λ) = 1 hora.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">Wq <span>tempo na fila</span></div>
+        <p>Tempo médio que um cliente espera na fila <em>antes</em> de o atendimento começar.</p>
+        <p><strong>Exemplo:</strong> λ = 3, μ = 4 → Wq = λ/[μ(μ−λ)] = 0,75 hora.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">Lei de Little <span>relações-chave</span></div>
+        <p>Ligam quantidade e tempo. Servem para achar um indicador a partir do outro.</p>
+        <span class="glossario-formula">L = λ·W  ·  Lq = λ·Wq  ·  W = Wq + 1/μ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossario-secao" id="gloss-mm1">
+    <h3>M/M/1 — um servidor, capacidade infinita</h3>
+    <p>Uma fila, um servidor. Termos próprios desta aba, além dos fundamentos.</p>
+    <div class="glossario-grid">
+      <div class="glossario-card">
+        <div class="glossario-termo">Estabilidade <span>condição λ &lt; μ</span></div>
+        <p>O M/M/1 só tem solução se o servidor for mais rápido que a chegada. Se λ ≥ μ, a fila cresce indefinidamente e a calculadora bloqueia.</p>
+        <p><strong>Exemplo:</strong> λ = 5, μ = 4 → instável (a aba acusa erro).</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">P(servidor ocupado) <span>= ρ</span></div>
+        <p>Probabilidade de o servidor estar atendendo alguém. No M/M/1 é igual à utilização ρ.</p>
+        <p><strong>Exemplo:</strong> λ = 3, μ = 4 → P(ocupado) = 0,75.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">P(W &gt; t) <span>espera total &gt; t</span></div>
+        <p>Probabilidade de o tempo total no sistema (fila + atendimento) passar de t.</p>
+        <p><strong>Exemplo:</strong> "chance de demorar mais de 1 h" com λ = 3, μ = 4.</p>
+        <span class="glossario-formula">P(W &gt; t) = e^(−(μ−λ)·t)</span>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">P(Wq &gt; t) <span>espera na fila &gt; t</span></div>
+        <p>Probabilidade de o tempo só na fila (antes do atendimento) passar de t.</p>
+        <p><strong>Exemplo:</strong> "chance de esperar mais de 30 min na fila".</p>
+        <span class="glossario-formula">P(Wq &gt; t) = ρ · e^(−(μ−λ)·t)</span>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">λ para W alvo <span>chegada-alvo</span></div>
+        <p>Taxa de chegada que faria o tempo médio no sistema atingir um W desejado, mantendo μ.</p>
+        <p><strong>Quando usar:</strong> quando o exercício pede "qual λ para que W seja X?".</p>
+        <p><strong>Exemplo:</strong> μ = 4 e W alvo = 1,25 → λ = μ − 1/W = 3,2.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossario-secao" id="gloss-mms">
+    <h3>M/M/s — vários servidores, capacidade infinita</h3>
+    <p>Vários servidores idênticos dividindo uma fila só. Termos próprios desta aba, além dos fundamentos.</p>
+    <div class="glossario-grid">
+      <div class="glossario-card">
+        <div class="glossario-termo">s <span>nº de servidores</span></div>
+        <p>Quantos servidores idênticos atendem em paralelo a mesma fila. Use inteiro ≥ 2 nesta aba.</p>
+        <p><strong>Quando usar:</strong> também aparece em M/M/s/K e M/M/s/N.</p>
+        <p><strong>Exemplo:</strong> 3 caixas de banco → s = 3.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">Estabilidade <span>condição ρ &lt; 1</span></div>
+        <p>Com s servidores, a utilização é ρ = λ/(s·μ). O sistema só é estável se essa razão for menor que 1.</p>
+        <p><strong>Exemplo:</strong> λ = 6, μ = 4, s = 2 → ρ = 0,75 (estável).</p>
+        <span class="glossario-formula">ρ = λ / (s·μ)</span>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">P(W &gt; t) e P(Wq &gt; t) <span>com s servidores</span></div>
+        <p>Mesmas probabilidades de espera do M/M/1, mas com fórmula que considera a chance de todos os s servidores estarem ocupados.</p>
+        <p><strong>Exemplo:</strong> chance de esperar mais que t com 3 caixas atendendo.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossario-secao" id="gloss-k">
+    <h3>Capacidade limitada — /K (M/M/1/K e M/M/s/K)</h3>
+    <p>O sistema comporta no máximo K clientes (atendimento + fila). Quando enche, novas chegadas são bloqueadas.</p>
+    <div class="glossario-grid">
+      <div class="glossario-card">
+        <div class="glossario-termo">K <span>capacidade total</span></div>
+        <p>Número máximo de clientes no sistema ao mesmo tempo, contando quem está em atendimento <em>e</em> na fila.</p>
+        <p><strong>Quando usar:</strong> quando há limite físico de espaço. Em M/M/s/K, K ≥ s.</p>
+        <p><strong>Exemplo:</strong> oficina com 1 box e 4 vagas de espera → K = 5.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">PK <span>sistema cheio</span></div>
+        <p>Probabilidade de o sistema estar lotado. É a chance de uma chegada ser bloqueada e ir embora.</p>
+        <p><strong>Exemplo:</strong> PK = 0,08 → 8% das chegadas encontram o sistema cheio e desistem.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">λ efetiva <span>entrada real</span></div>
+        <p>Taxa que de fato entra no sistema depois de descontar as chegadas bloqueadas. É ela que entra no cálculo de W e Wq.</p>
+        <p><strong>Exemplo:</strong> λ = 5 e PK = 0,10 → λ efetiva = λ·(1 − PK) = 4,5.</p>
+        <span class="glossario-formula">λ efetiva = λ · (1 − PK)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossario-secao" id="gloss-n">
+    <h3>População finita — /N (M/M/1/N e M/M/s/N)</h3>
+    <p>Sistema fechado: existe um total fixo N de clientes que entram, são atendidos e voltam para fora (ex.: máquinas que quebram e são consertadas).</p>
+    <div class="glossario-grid">
+      <div class="glossario-card">
+        <div class="glossario-termo">N <span>população total</span></div>
+        <p>Total fixo de clientes possíveis, somando os que estão no sistema e os que estão fora dele.</p>
+        <p><strong>Quando usar:</strong> população finita. Em M/M/s/N, N ≥ s.</p>
+        <p><strong>Exemplo:</strong> uma fábrica com 8 robôs → N = 8.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">λ efetiva <span>entrada real</span></div>
+        <p>Aqui a chegada depende de quantos clientes ainda estão fora: quanto mais máquinas operando, mais quebras podem ocorrer.</p>
+        <p><strong>Exemplo:</strong> λ = 0,1, N = 8, L = 2 → λ efetiva = 0,1·(8 − 2) = 0,6.</p>
+        <span class="glossario-formula">λ efetiva = λ · (N − L)</span>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">N − L <span>operacionais / fora do sistema</span></div>
+        <p>Número médio de clientes fora do sistema. Em problemas de máquinas, é a quantidade média em operação.</p>
+        <p><strong>Exemplo:</strong> N = 8 e L = 2 → 6 máquinas operando, em média.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">P(ocioso) e P(ocupado) <span>M/M/1/N</span></div>
+        <p>No caso de 1 servidor, P0 é a chance de o técnico estar ocioso e 1 − P0 a de estar ocupado.</p>
+        <p><strong>Exemplo:</strong> P0 = 0,3 → técnico ocioso 30% do tempo, ocupado 70%.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">ocupação / ociosidade média por servidor <span>M/M/s/N</span></div>
+        <p>Fração média de tempo que <em>cada</em> servidor passa ocupado (ou ocioso), individualmente.</p>
+        <p><strong>Exemplo:</strong> ocupação média 0,4 → cada técnico trabalha 40% do tempo.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">P(algum servidor ocioso) <span>M/M/s/N</span></div>
+        <p>Probabilidade de haver menos clientes no sistema do que servidores, ou seja, pelo menos um servidor livre. Não confundir com a ociosidade média.</p>
+        <p><strong>Exemplo:</strong> é o valor 0,9279 do slide dos robôs, isto é P(n &lt; s).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossario-secao" id="gloss-mg1">
+    <h3>M/G/1 — atendimento de distribuição geral</h3>
+    <p>Um servidor, mas o tempo de atendimento não precisa ser exponencial: basta conhecer a média (1/μ) e a variância (σ²).</p>
+    <div class="glossario-grid">
+      <div class="glossario-card">
+        <div class="glossario-termo">σ² <span>sigma² — variância do atendimento</span></div>
+        <p>Variância do tempo de atendimento. Mede o quanto a duração varia em torno da média.</p>
+        <p><strong>Quando usar:</strong> use σ² = 0 para atendimento de duração constante (determinístico).</p>
+        <p><strong>Exemplo:</strong> lavagem automática que sempre dura o mesmo tempo → σ² = 0.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">Lq <span>fórmula de Pollaczek–Khinchine</span></div>
+        <p>No M/G/1 a fila depende da variância: quanto mais irregular o atendimento, maior Lq. Daí derivam L, W e Wq.</p>
+        <p><strong>Exemplo:</strong> com σ² = 0, Lq fica menor que num M/M/1 equivalente.</p>
+        <span class="glossario-formula">Lq = (λ²·σ² + ρ²) / (2·(1 − ρ))</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="glossario-secao" id="gloss-prio">
+    <h3>Prioridades — classes com ordem de atendimento</h3>
+    <p>Vários tipos de cliente disputam o atendimento, com a classe 1 tendo a maior prioridade.</p>
+    <div class="glossario-grid">
+      <div class="glossario-card">
+        <div class="glossario-termo">Regime <span>sem / com interrupção</span></div>
+        <p><em>Sem interrupção:</em> termina o atendimento atual antes de chamar a classe maior. <em>Com interrupção:</em> a classe maior pausa o atendimento da menor (preemptivo).</p>
+        <p><strong>Exemplo:</strong> emergência interrompendo uma consulta comum → com interrupção.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">k <span>nº de classes</span></div>
+        <p>Quantidade de classes de prioridade. Use inteiro ≥ 2. A classe 1 é sempre a mais prioritária.</p>
+        <p><strong>Exemplo:</strong> urgente e comum → k = 2.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">λ1…λk e λ total <span>chegada por classe</span></div>
+        <p>Cada classe tem sua própria taxa de chegada; λ total é a soma de todas.</p>
+        <p><strong>Exemplo:</strong> λ1 = 1, λ2 = 2 → λ total = 3.</p>
+      </div>
+      <div class="glossario-card">
+        <div class="glossario-termo">Wi, Wqi, Li, Lqi <span>métricas por classe</span></div>
+        <p>As métricas usuais calculadas para <em>cada</em> classe. Classes mais prioritárias esperam menos.</p>
+        <p><strong>Exemplo:</strong> Wq1 &lt; Wq2, pois a classe 1 fura a fila da classe 2.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="calculos.js"></script>
 <script>
 function openTab(tabId) {
@@ -363,6 +633,14 @@ function openTab(tabId) {
 
   document.getElementById(tabId).classList.add('active');
   event.target.classList.add('active');
+}
+
+function openGlossarioSecao(secId, chip) {
+  document.querySelectorAll('#glossario .glossario-secao').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#glossario .glossario-chip').forEach(c => c.classList.remove('active'));
+
+  document.getElementById('gloss-' + secId).classList.add('active');
+  chip.classList.add('active');
 }
 
 function formatar(valor) {

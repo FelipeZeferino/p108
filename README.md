@@ -15,6 +15,8 @@ A aplicação possui uma interface com abas para oito modelos de filas:
 - **M/M/1/N**: sistema fechado com um servidor e população finita `N`.
 - **M/M/s/N**: sistema fechado com múltiplos servidores e população finita `N`.
 
+Há ainda uma aba **Glossário**, apenas de consulta. Ela traz a notação de Kendall fixa no topo e um sub-menu que separa os termos por tipo de fila: uma seção **Fundamentos** com o que é comum a todos os modelos (`λ`, `μ`, `t`, `ρ`, `P0`, `Pn`, `L`, `Lq`, `W`, `Wq` e a Lei de Little) e seções específicas para `M/M/1`, `M/M/s`, capacidade limitada `/K`, população finita `/N`, `M/G/1` e `Prioridades`, contendo apenas os termos exclusivos de cada uma (como `PK`, `λ efetiva`, `N − L`, `σ²` ou as métricas por classe). Cada termo traz o significado, quando usar e um exemplo numérico que pode ser conferido nas demais abas.
+
 Os cálculos são feitos diretamente no navegador, sem necessidade de servidor ou instalação de dependências.
 
 ## Funcionalidades

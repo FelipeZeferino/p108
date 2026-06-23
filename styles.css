@@ -351,6 +351,134 @@ button:active {
   transform: translateY(0);
 }
 
+.glossario-intro {
+  max-width: 760px;
+  margin: 0 0 26px;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.glossario-subnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.glossario-chip {
+  margin: 0;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none;
+  transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.glossario-chip:hover,
+.glossario-chip:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(184, 92, 56, 0.2);
+  color: var(--text);
+  filter: none;
+  box-shadow: none;
+}
+
+.glossario-chip.active {
+  background: linear-gradient(135deg, var(--primary) 0%, #cf7a4e 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 10px 22px rgba(184, 92, 56, 0.24);
+}
+
+.glossario-secao {
+  display: none;
+}
+
+.glossario-secao.active {
+  display: block;
+  animation: fade-up 0.24s ease;
+}
+
+.glossario-secao > p,
+.glossario-kendall > p {
+  max-width: 760px;
+  margin: 0 0 16px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.glossario-secao > p strong {
+  color: var(--primary-strong);
+}
+
+.glossario-secao > .glossario-grid + p {
+  margin-top: 22px;
+}
+
+.glossario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.glossario-card {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--panel-strong);
+  box-shadow: 0 10px 26px rgba(83, 48, 28, 0.06);
+}
+
+.glossario-termo {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: var(--primary-strong);
+}
+
+.glossario-termo span {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+}
+
+.glossario-card p {
+  margin: 6px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.glossario-card p strong {
+  color: var(--primary-strong);
+}
+
+.glossario-formula {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+  font-size: 0.88rem;
+  color: var(--primary-strong);
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -387,7 +515,8 @@ button:active {
     width: 100%;
   }
 
-  .form-grid {
+  .form-grid,
+  .glossario-grid {
     grid-template-columns: 1fr;
   }
 
